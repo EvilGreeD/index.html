@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📔 Ежедневник</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📔</text></svg>">
 <style>
   :root {
     --bg: #f0f2f5; --panel-bg: #ffffff; --panel-bg-alt: #fafafa; --text: #1c1e21;
@@ -296,8 +297,6 @@
   }
   .overdue-badge:hover { filter: brightness(0.95); }
   .overdue-badge.hidden { display: none; }
-
-  /* === Авторизация === */
   .auth-btn {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--panel-bg); color: var(--text);
@@ -345,11 +344,8 @@
     <button class="icon-btn secondary" onclick="toggleStats()" title="Статистика">📊</button>
     <button class="secondary notes-toggle-desktop" onclick="toggleNotes()" title="Заметки на месяц">📝</button>
     <button class="icon-btn secondary" id="themeToggle" onclick="toggleTheme()" title="Тема">🌙</button>
-
-    <!-- Авторизация -->
     <button id="authBtn" class="auth-btn" onclick="handleAuth()">
-      <span id="authIcon">🔑</span>
-      <span id="authText">Войти</span>
+      <span>🔑</span><span>Войти</span>
     </button>
     <span id="syncStatus" class="sync-status" style="display:none">
       <span class="dot"></span>
@@ -427,7 +423,7 @@
   </div>
 </div>
 
-<!-- ============ FIREBASE SDK ============ -->
+<!-- ====== FIREBASE SDK (module) ====== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -453,15 +449,18 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 const provider = new GoogleAuthProvider();
 
-// Экспортируем в window, чтобы обычный <script> мог пользоваться
-window.__fb = { auth, db, provider, signInWithPopup, onAuthStateChanged, signOut };
+// Экспортируем ВСЁ нужное в window, чтобы обычный <script> мог пользоваться
+window.__fb = {
+  auth, db, provider,
+  signInWithPopup, onAuthStateChanged, signOut,
+  ref, set, onValue
+};
 window.__fbReady = true;
 window.dispatchEvent(new Event("fb-ready"));
 </script>
 
-<!-- ============ ОСНОВНОЙ КОД ============ -->
+<!-- ====== ОСНОВНОЙ КОД ====== -->
 <script>
-// ===== Глобальное состояние =====
 const STORAGE_KEY = "diary_data_v4";
 const THEME_KEY = "diary_theme_v4";
 const MONTHS = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
@@ -475,17 +474,15 @@ let monthOffset = 0;
 let viewMode = "week";
 let openPanel = null;
 
-// Firebase-состояние
 let fbAuth = null;
 let fbDb = null;
 let fbProvider = null;
 let currentUser = null;
 let cloudRef = null;
 let unsubscribeCloud = null;
-let isSyncingFromCloud = false; // чтобы не зациклить запись
+let isSyncingFromCloud = false;
 let pendingCloudSave = null;
 
-// ===== Работа с localStorage =====
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -498,15 +495,9 @@ function loadData() {
     };
   } catch { return { days: {}, monthNotes: {}, settings: {} }; }
 }
-function saveDataLocal() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-function saveData() {
-  saveDataLocal();
-  scheduleCloudSave();
-}
+function saveDataLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function saveData() { saveDataLocal(); scheduleCloudSave(); }
 
-// ===== Firebase: авторизация =====
 function setSyncStatus(status, text) {
   const el = document.getElementById("syncStatus");
   const txt = document.getElementById("syncText");
@@ -519,8 +510,6 @@ function setSyncStatus(status, text) {
 
 function updateAuthButton() {
   const btn = document.getElementById("authBtn");
-  const icon = document.getElementById("authIcon");
-  const text = document.getElementById("authText");
   if (!btn) return;
   if (currentUser) {
     const name = (currentUser.displayName || currentUser.email || "User").split(" ")[0];
@@ -563,7 +552,6 @@ function initFirebase() {
     currentUser = user;
     updateAuthButton();
 
-    // Отписываемся от старой ссылки
     if (unsubscribeCloud) {
       unsubscribeCloud();
       unsubscribeCloud = null;
@@ -571,9 +559,9 @@ function initFirebase() {
 
     if (user) {
       setSyncStatus("syncing", "Подключение…");
-      cloudRef = ref(fbDb, `users/${user.uid}/diary`);
+      cloudRef = window.__fb.ref(fbDb, `users/${user.uid}/diary`);
 
-      unsubscribeCloud = onValue(cloudRef, (snapshot) => {
+      unsubscribeCloud = window.__fb.onValue(cloudRef, (snapshot) => {
         const cloudData = snapshot.val();
         isSyncingFromCloud = true;
 
@@ -584,9 +572,8 @@ function initFirebase() {
             settings: cloudData.settings || {}
           };
         } else {
-          // В облаке пусто — заливаем текущее локальное состояние
           if (Object.keys(data.days).length > 0 || Object.keys(data.monthNotes).length > 0) {
-            set(cloudRef, data);
+            window.__fb.set(cloudRef, data);
           }
         }
 
@@ -597,10 +584,9 @@ function initFirebase() {
         isSyncingFromCloud = false;
       }, (err) => {
         console.error("Ошибка чтения:", err);
-        setSyncStatus("offline", "Ошибка синхронизации");
+        setSyncStatus("offline", "Ошибка: " + (err.code || err.message));
       });
     } else {
-      // Вышли — работаем только локально
       cloudRef = null;
       setSyncStatus("hidden");
       data = loadData();
@@ -609,23 +595,21 @@ function initFirebase() {
   });
 }
 
-// Запись в облако с дебаунсом (не спамим Firebase при каждом нажатии клавиши)
 function scheduleCloudSave() {
   if (!currentUser || !cloudRef || isSyncingFromCloud) return;
   if (pendingCloudSave) clearTimeout(pendingCloudSave);
   setSyncStatus("syncing", "Сохранение…");
   pendingCloudSave = setTimeout(() => {
     if (!cloudRef) return;
-    set(cloudRef, JSON.parse(JSON.stringify(data)))
+    window.__fb.set(cloudRef, JSON.parse(JSON.stringify(data)))
       .then(() => setSyncStatus("online", "Синхронизировано"))
       .catch(err => {
         console.error("Ошибка записи:", err);
-        setSyncStatus("offline", "Ошибка сохранения");
+        setSyncStatus("offline", "Ошибка: " + (err.code || err.message));
       });
   }, 400);
 }
 
-// ===== Утилиты =====
 function dateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
@@ -646,7 +630,6 @@ function escapeHtml(s) {
   }[c]));
 }
 
-// ===== Данные дня =====
 function getDay(key) {
   if (!data.days[key]) data.days[key] = { tasks: [] };
   if (!data.days[key].tasks) data.days[key].tasks = [];
@@ -674,7 +657,6 @@ function removeTask(key, idx) {
   if (openPanel === "stats") renderStats();
 }
 
-// ===== Тема =====
 function applyTheme() {
   const theme = localStorage.getItem(THEME_KEY) || "light";
   document.body.classList.toggle("dark", theme === "dark");
@@ -687,7 +669,6 @@ function toggleTheme() {
   applyTheme();
 }
 
-// ===== Режим просмотра =====
 function toggleView() {
   viewMode = viewMode === "week" ? "month" : "week";
   document.getElementById("viewWeek").style.display = viewMode === "week" ? "" : "none";
@@ -707,7 +688,6 @@ function goToday() {
   if (openPanel === "notes") syncNotesMonth();
 }
 
-// ===== Панели =====
 function closeAllPanels() {
   ["notesPanel","statsPanel","searchPanel"].forEach(id => {
     document.getElementById(id).classList.remove("open");
@@ -739,7 +719,6 @@ function toggleSearch() {
   setTimeout(() => document.getElementById("searchInput").focus(), 100);
 }
 
-// ===== Заметки =====
 let currentMonthKey = null;
 function openNotesForMonth(mKey, label) {
   currentMonthKey = mKey;
@@ -759,13 +738,11 @@ function syncNotesMonth() {
   openNotesForMonth(mKey, label);
 }
 
-// ===== Статистика =====
 function renderStats() {
   const body = document.getElementById("statsBody");
   body.innerHTML = "";
   let total = 0, done = 0, failed = 0, active = 0;
   const byMonth = {};
-
   for (const key in data.days) {
     const mKey = key.slice(0,7);
     if (!byMonth[mKey]) byMonth[mKey] = { done: 0, failed: 0, active: 0, total: 0 };
@@ -776,7 +753,6 @@ function renderStats() {
       else { active++; byMonth[mKey].active++; }
     }
   }
-
   const general = document.createElement("div");
   general.className = "stat-block";
   general.innerHTML = `
@@ -828,7 +804,6 @@ function renderStats() {
   }
 }
 
-// ===== Поиск =====
 function doSearch() {
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
   const results = document.getElementById("searchResults");
@@ -888,7 +863,6 @@ function jumpToDate(dateKey) {
   if (openPanel === "notes") syncNotesMonth();
 }
 
-// ===== Просроченные =====
 function getForgottenTasks() {
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -977,7 +951,6 @@ function maybeShowReminder() {
   }
 }
 
-// ===== Рендер =====
 function render() {
   if (viewMode === "week") renderWeek();
   else renderMonth();
@@ -1114,7 +1087,6 @@ function renderMonth() {
   }
 }
 
-// ===== Экспорт / Импорт =====
 function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1150,8 +1122,7 @@ function importData(event) {
           else if (impNotes[key]) data.monthNotes[key] += "\n" + impNotes[key];
         }
       }
-      saveData();
-      render();
+      saveData(); render();
       if (openPanel === "notes") syncNotesMonth();
       if (openPanel === "stats") renderStats();
       alert("✅ Импорт завершён!");
@@ -1166,16 +1137,12 @@ function importData(event) {
 document.getElementById("monthNotesInput").addEventListener("input", saveMonthNotes);
 window.addEventListener("beforeunload", saveMonthNotes);
 
-// ===== Старт =====
 applyTheme();
 render();
 
-// Ждём Firebase
 window.addEventListener("fb-ready", initFirebase);
-// Если уже загрузился
 if (window.__fbReady) initFirebase();
 
-// Напоминание о забытых — только после того, как данные загрузятся
 setTimeout(maybeShowReminder, 1500);
 </script>
 </body>
