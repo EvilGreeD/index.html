@@ -6,82 +6,38 @@
 <title>📔 Ежедневник</title>
 <style>
   :root {
-    --bg: #f0f2f5;
-    --panel-bg: #ffffff;
-    --panel-bg-alt: #fafafa;
-    --text: #1c1e21;
-    --text-muted: #65676b;
-    --border: #eee;
-    --border-strong: #ddd;
-    --task-bg: #f7f8fa;
-    --task-failed-bg: #fdecee;
-    --task-failed-text: #c0392b;
-    --accent: #1877f2;
-    --accent-hover: #166fe5;
-    --secondary: #e4e6eb;
-    --secondary-hover: #d8dadf;
-    --secondary-text: #1c1e21;
-    --notes-bg: #fffbe6;
-    --notes-text: #8a6d00;
-    --warn-bg: #fff3cd;
-    --warn-text: #856404;
-    --shadow: rgba(0,0,0,0.08);
+    --bg: #f0f2f5; --panel-bg: #ffffff; --panel-bg-alt: #fafafa; --text: #1c1e21;
+    --text-muted: #65676b; --border: #eee; --border-strong: #ddd; --task-bg: #f7f8fa;
+    --task-failed-bg: #fdecee; --task-failed-text: #c0392b; --accent: #1877f2;
+    --accent-hover: #166fe5; --secondary: #e4e6eb; --secondary-hover: #d8dadf;
+    --secondary-text: #1c1e21; --notes-bg: #fffbe6; --notes-text: #8a6d00;
+    --warn-bg: #fff3cd; --warn-text: #856404; --shadow: rgba(0,0,0,0.08);
     --shadow-modal: rgba(0,0,0,0.3);
   }
   body.dark {
-    --bg: #18191a;
-    --panel-bg: #242526;
-    --panel-bg-alt: #1e1f20;
-    --text: #e4e6eb;
-    --text-muted: #b0b3b8;
-    --border: #3a3b3c;
-    --border-strong: #4a4b4c;
-    --task-bg: #3a3b3c;
-    --task-failed-bg: #4a1f24;
-    --task-failed-text: #ff8b9a;
-    --accent: #2d88ff;
-    --accent-hover: #1a7aff;
-    --secondary: #3a3b3c;
-    --secondary-hover: #4a4b4c;
-    --secondary-text: #e4e6eb;
-    --notes-bg: #3a3520;
-    --notes-text: #ffd84d;
-    --warn-bg: #4a3a1a;
-    --warn-text: #ffd84d;
-    --shadow: rgba(0,0,0,0.4);
+    --bg: #18191a; --panel-bg: #242526; --panel-bg-alt: #1e1f20; --text: #e4e6eb;
+    --text-muted: #b0b3b8; --border: #3a3b3c; --border-strong: #4a4b4c; --task-bg: #3a3b3c;
+    --task-failed-bg: #4a1f24; --task-failed-text: #ff8b9a; --accent: #2d88ff;
+    --accent-hover: #1a7aff; --secondary: #3a3b3c; --secondary-hover: #4a4b4c;
+    --secondary-text: #e4e6eb; --notes-bg: #3a3520; --notes-text: #ffd84d;
+    --warn-bg: #4a3a1a; --warn-text: #ffd84d; --shadow: rgba(0,0,0,0.4);
     --shadow-modal: rgba(0,0,0,0.6);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 10px;
-    min-height: 100vh;
+    background: var(--bg); color: var(--text); padding: 10px; min-height: 100vh;
     transition: background 0.2s, color 0.2s;
   }
-
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px; margin-bottom: 15px;
   }
   h1 { font-size: 22px; }
   .nav-buttons { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
   button {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.2s;
+    background: var(--accent); color: white; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 14px; cursor: pointer; transition: 0.2s;
   }
   button:hover { background: var(--accent-hover); }
   button.secondary { background: var(--secondary); color: var(--secondary-text); }
@@ -89,19 +45,8 @@
   button.active { background: #42b72a; }
   button.active:hover { background: #36a420; }
   button.icon-btn { padding: 8px 10px; font-size: 16px; }
-
-  /* Вид недели / месяца */
-  .view-container { transition: 0.2s; }
-  .week {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-  }
-  .month-view {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-  }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+  .month-view { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   @media (max-width: 900px) {
     .week { grid-template-columns: repeat(2, 1fr); }
     .month-view { grid-template-columns: repeat(7, 1fr); gap: 4px; }
@@ -110,52 +55,30 @@
     .week { grid-template-columns: 1fr; }
     .month-view { grid-template-columns: repeat(7, 1fr); gap: 3px; }
   }
-
   .day {
-    background: var(--panel-bg);
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 1px 3px var(--shadow);
-    display: flex;
-    flex-direction: column;
+    background: var(--panel-bg); border-radius: 12px; padding: 12px;
+    box-shadow: 0 1px 3px var(--shadow); display: flex; flex-direction: column;
     min-height: 220px;
   }
   .day.today { border: 2px solid var(--accent); }
   .day.past { background: var(--panel-bg-alt); }
   .day-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px;
   }
   .day-name { font-weight: 600; font-size: 14px; text-transform: capitalize; }
   .day-date { font-size: 12px; color: var(--text-muted); }
   .day.today .day-name { color: var(--accent); }
-
-  /* Ячейка месяца */
   .month-cell {
-    background: var(--panel-bg);
-    border-radius: 8px;
-    padding: 6px;
-    min-height: 90px;
-    box-shadow: 0 1px 2px var(--shadow);
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-    transition: 0.15s;
-    overflow: hidden;
-    font-size: 11px;
+    background: var(--panel-bg); border-radius: 8px; padding: 6px; min-height: 90px;
+    box-shadow: 0 1px 2px var(--shadow); display: flex; flex-direction: column;
+    cursor: pointer; transition: 0.15s; overflow: hidden; font-size: 11px;
   }
   .month-cell:hover { background: var(--panel-bg-alt); }
   .month-cell.today { border: 2px solid var(--accent); }
   .month-cell.other-month { opacity: 0.4; }
   .month-cell-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;
   }
   .month-cell-date { font-weight: 700; font-size: 13px; }
   .month-cell.today .month-cell-date { color: var(--accent); }
@@ -163,215 +86,109 @@
   .month-cell-counts .c-done { color: #42b72a; }
   .month-cell-counts .c-failed { color: #e41e3f; }
   .month-cell-tasks {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    overflow: hidden;
+    flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden;
   }
   .month-cell-task {
-    font-size: 10px;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text-muted);
+    font-size: 10px; line-height: 1.2; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; color: var(--text-muted);
   }
   .month-cell-task.done { text-decoration: line-through; color: #42b72a; opacity: 0.7; }
   .month-cell-task.failed { text-decoration: line-through; color: #e41e3f; opacity: 0.7; }
   .month-cell-more { font-size: 9px; color: var(--text-muted); text-align: center; }
-
   .month-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-    margin-bottom: 6px;
-    padding: 0 6px;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+    margin-bottom: 6px; padding: 0 6px;
   }
   @media (max-width: 500px) { .month-header { gap: 3px; padding: 0 2px; } }
   .month-header div {
-    text-align: center;
-    font-size: 11px;
-    color: var(--text-muted);
-    font-weight: 600;
-    text-transform: uppercase;
+    text-align: center; font-size: 11px; color: var(--text-muted);
+    font-weight: 600; text-transform: uppercase;
   }
-
   .tasks { flex: 1; display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
-
   .task {
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 6px 8px;
-    background: var(--task-bg);
-    border-radius: 6px;
-    font-size: 13px;
-    word-break: break-word;
-    transition: 0.15s;
+    display: flex; align-items: flex-start; gap: 6px; padding: 6px 8px;
+    background: var(--task-bg); border-radius: 6px; font-size: 13px;
+    word-break: break-word; transition: 0.15s;
   }
   .task.done { opacity: 0.55; }
   .task.done .task-text { text-decoration: line-through; color: var(--text-muted); }
   .task.failed { background: var(--task-failed-bg); }
   .task.failed .task-text {
-    text-decoration: line-through;
-    color: var(--task-failed-text);
+    text-decoration: line-through; color: var(--task-failed-text);
   }
   .task-text { flex: 1; }
-
   .status-btns { display: flex; gap: 2px; flex-shrink: 0; margin-top: 1px; }
   .status-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    width: 18px;
-    height: 18px;
-    font-size: 15px;
-    line-height: 1;
-    cursor: pointer;
-    opacity: 0.35;
-    transition: 0.15s;
-    border-radius: 4px;
+    background: none; border: none; padding: 0; width: 18px; height: 18px;
+    font-size: 15px; line-height: 1; cursor: pointer; opacity: 0.35;
+    transition: 0.15s; border-radius: 4px;
   }
   .status-btn:hover { opacity: 1; transform: scale(1.15); background: none; }
   .status-btn.on { opacity: 1; }
   .status-btn.done-on { color: #42b72a; }
   .status-btn.fail-on { color: #e41e3f; }
-
   .task-remove {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    padding: 0 4px;
-    font-size: 16px;
-    cursor: pointer;
-    line-height: 1;
-    flex-shrink: 0;
+    background: none; border: none; color: var(--text-muted); padding: 0 4px;
+    font-size: 16px; cursor: pointer; line-height: 1; flex-shrink: 0;
   }
   .task-remove:hover { color: #e41e3f; background: none; }
-
   .add-task { display: flex; gap: 4px; }
   .add-task input {
-    flex: 1;
-    padding: 6px 8px;
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    font-size: 13px;
-    min-width: 0;
-    background: var(--panel-bg);
-    color: var(--text);
+    flex: 1; padding: 6px 8px; border: 1px solid var(--border-strong);
+    border-radius: 6px; font-size: 13px; min-width: 0;
+    background: var(--panel-bg); color: var(--text);
   }
   .add-task input:focus { outline: none; border-color: var(--accent); }
   .add-task button { padding: 6px 10px; font-size: 13px; }
-
   .file-actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    align-items: center;
+    display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;
   }
   .file-actions label {
-    display: inline-block;
-    background: #42b72a;
-    color: white;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 14px;
-    cursor: pointer;
+    display: inline-block; background: #42b72a; color: white; border-radius: 8px;
+    padding: 8px 14px; font-size: 14px; cursor: pointer;
   }
   .file-actions label:hover { background: #36a420; }
   .file-actions input[type="file"] { display: none; }
-
-  /* Панели (заметки, статистика, поиск) — общий стиль */
   .side-panel {
-    position: fixed;
-    top: 0;
-    right: -440px;
-    width: 420px;
-    max-width: 92vw;
-    height: 100vh;
-    background: var(--panel-bg);
-    color: var(--text);
-    box-shadow: -4px 0 20px var(--shadow-modal);
-    transition: right 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
+    position: fixed; top: 0; right: -440px; width: 420px; max-width: 92vw;
+    height: 100vh; background: var(--panel-bg); color: var(--text);
+    box-shadow: -4px 0 20px var(--shadow-modal); transition: right 0.3s ease;
+    display: flex; flex-direction: column; z-index: 100;
   }
   .side-panel.open { right: 0; }
-
   .side-panel-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 16px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
   }
   .side-panel-header h2 { font-size: 17px; }
   .side-panel-header .close-btn {
-    background: none;
-    border: none;
-    font-size: 22px;
-    color: var(--text-muted);
-    padding: 4px 8px;
-    cursor: pointer;
-    line-height: 1;
+    background: none; border: none; font-size: 22px; color: var(--text-muted);
+    padding: 4px 8px; cursor: pointer; line-height: 1;
   }
   .side-panel-header .close-btn:hover { color: #e41e3f; background: none; }
-
   .side-panel-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    gap: 10px;
+    flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 10px;
     overflow-y: auto;
   }
-
-  /* Заметки */
   .notes-panel-header { background: var(--notes-bg); }
   .notes-panel-header h2 { color: var(--notes-text); }
   .notes-panel-subtitle { font-size: 13px; color: var(--text-muted); }
   .notes-month-input {
-    width: 100%;
-    flex: 1;
-    padding: 12px;
-    border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.5;
-    resize: none;
-    background: var(--notes-bg);
-    color: var(--text);
-    min-height: 200px;
+    width: 100%; flex: 1; padding: 12px; border: 1px solid var(--border-strong);
+    border-radius: 8px; font-family: inherit; font-size: 14px; line-height: 1.5;
+    resize: none; background: var(--notes-bg); color: var(--text); min-height: 200px;
   }
-  .notes-month-input:focus {
-    outline: none;
-    border-color: #f0c419;
-  }
+  .notes-month-input:focus { outline: none; border-color: #f0c419; }
   .notes-hint { font-size: 12px; color: var(--text-muted); text-align: center; }
-
-  /* Статистика */
   .stat-block {
-    background: var(--task-bg);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 10px;
+    background: var(--task-bg); border-radius: 10px; padding: 14px; margin-bottom: 10px;
   }
   .stat-block h3 {
-    font-size: 14px;
-    margin-bottom: 10px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 14px; margin-bottom: 10px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
   }
   .stat-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    font-size: 14px;
+    display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px;
     border-bottom: 1px solid var(--border);
   }
   .stat-row:last-child { border-bottom: none; }
@@ -381,145 +198,74 @@
   .stat-failed { color: #e41e3f; }
   .stat-active { color: var(--text); }
   .stat-bar {
-    height: 8px;
-    background: var(--secondary);
-    border-radius: 4px;
-    overflow: hidden;
-    display: flex;
-    margin-top: 8px;
+    height: 8px; background: var(--secondary); border-radius: 4px; overflow: hidden;
+    display: flex; margin-top: 8px;
   }
   .stat-bar-done { background: #42b72a; }
   .stat-bar-failed { background: #e41e3f; }
   .stat-bar-active { background: #f0c419; }
   .stat-month { margin-bottom: 14px; }
   .stat-month-title {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: var(--text);
+    font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text);
   }
-
-  /* Поиск */
   .search-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    font-size: 14px;
-    background: var(--panel-bg);
-    color: var(--text);
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong);
+    border-radius: 8px; font-size: 14px; background: var(--panel-bg); color: var(--text);
   }
   .search-input:focus { outline: none; border-color: var(--accent); }
   .search-results { flex: 1; overflow-y: auto; margin-top: 6px; }
   .search-result {
-    padding: 10px;
-    background: var(--task-bg);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: 0.15s;
-    border-left: 3px solid var(--accent);
+    padding: 10px; background: var(--task-bg); border-radius: 8px; margin-bottom: 8px;
+    cursor: pointer; transition: 0.15s; border-left: 3px solid var(--accent);
   }
   .search-result:hover { background: var(--secondary); }
   .search-result-head {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    margin-bottom: 4px;
+    display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;
   }
   .search-result-date { color: var(--text-muted); }
-  .search-result-status {
-    font-size: 11px;
-    padding: 1px 6px;
-    border-radius: 10px;
-  }
+  .search-result-status { font-size: 11px; padding: 1px 6px; border-radius: 10px; }
   .search-result-status.done { background: rgba(66,183,42,0.2); color: #42b72a; }
   .search-result-status.failed { background: rgba(228,30,63,0.2); color: #e41e3f; }
   .search-result-status.active { background: var(--secondary); color: var(--text-muted); }
   .search-result-text { font-size: 13px; word-break: break-word; }
   .search-result-text mark {
-    background: #ffe69b;
-    color: #333;
-    padding: 0 2px;
-    border-radius: 2px;
+    background: #ffe69b; color: #333; padding: 0 2px; border-radius: 2px;
   }
   body.dark .search-result-text mark { background: #b08800; color: #fff; }
   .search-empty { text-align: center; color: var(--text-muted); padding: 30px 10px; }
-
   .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.3);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-    z-index: 99;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.3); opacity: 0;
+    pointer-events: none; transition: opacity 0.3s; z-index: 99;
   }
   .overlay.open { opacity: 1; pointer-events: auto; }
   body.dark .overlay { background: rgba(0,0,0,0.6); }
-
-  /* Забытые задачи */
   .forgotten-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-    padding: 15px;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none;
+    align-items: center; justify-content: center; z-index: 200; padding: 15px;
   }
   .forgotten-overlay.open { display: flex; }
-
   .forgotten-modal {
-    background: var(--panel-bg);
-    color: var(--text);
-    border-radius: 14px;
-    max-width: 600px;
-    width: 100%;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
+    background: var(--panel-bg); color: var(--text); border-radius: 14px;
+    max-width: 600px; width: 100%; max-height: 85vh; display: flex; flex-direction: column;
     box-shadow: 0 10px 40px var(--shadow-modal);
   }
   .forgotten-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--warn-bg);
-    border-radius: 14px 14px 0 0;
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    background: var(--warn-bg); border-radius: 14px 14px 0 0;
   }
   .forgotten-header h2 {
-    font-size: 18px;
-    color: var(--warn-text);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 18px; color: var(--warn-text); display: flex; align-items: center; gap: 8px;
   }
-  .forgotten-header p {
-    font-size: 13px;
-    color: var(--warn-text);
-    margin-top: 4px;
-  }
+  .forgotten-header p { font-size: 13px; color: var(--warn-text); margin-top: 4px; }
   .forgotten-body { flex: 1; overflow-y: auto; padding: 12px 20px; }
   .forgotten-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 10px 12px;
-    background: var(--task-bg);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border-left: 3px solid #f0c419;
-    font-size: 14px;
+    display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px;
+    background: var(--task-bg); border-radius: 8px; margin-bottom: 8px;
+    border-left: 3px solid #f0c419; font-size: 14px;
   }
   .forgotten-item-date {
-    font-size: 11px;
-    color: var(--warn-text);
-    background: var(--warn-bg);
-    padding: 2px 6px;
-    border-radius: 4px;
-    white-space: nowrap;
-    flex-shrink: 0;
+    font-size: 11px; color: var(--warn-text); background: var(--warn-bg);
+    padding: 2px 6px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
   }
   .forgotten-item-text { flex: 1; word-break: break-word; }
   .forgotten-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
@@ -529,50 +275,60 @@
   .btn-fail { background: #e41e3f; }
   .btn-fail:hover { background: #c81a35; }
   .forgotten-footer {
-    padding: 12px 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    flex-wrap: wrap;
+    padding: 12px 20px; border-top: 1px solid var(--border); display: flex;
+    justify-content: space-between; gap: 8px; flex-wrap: wrap;
   }
-
   .fab-notes {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    font-size: 24px;
-    background: #f0c419;
-    color: #333;
-    box-shadow: 0 4px 12px var(--shadow-modal);
-    display: none;
-    z-index: 50;
+    position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px;
+    border-radius: 50%; font-size: 24px; background: #f0c419; color: #333;
+    box-shadow: 0 4px 12px var(--shadow-modal); display: none; z-index: 50;
   }
   .fab-notes:hover { background: #e0b309; }
   @media (max-width: 700px) {
     .fab-notes { display: block; }
     .notes-toggle-desktop { display: none; }
   }
-
   .overdue-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: var(--warn-bg);
-    color: var(--warn-text);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid #ffe69b;
+    display: inline-flex; align-items: center; gap: 4px; background: var(--warn-bg);
+    color: var(--warn-text); padding: 6px 12px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #ffe69b;
     transition: 0.2s;
   }
   .overdue-badge:hover { filter: brightness(0.95); }
   .overdue-badge.hidden { display: none; }
+
+  /* === Авторизация === */
+  .auth-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--panel-bg); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: 8px;
+    padding: 8px 14px; font-size: 14px; cursor: pointer; transition: 0.2s;
+  }
+  .auth-btn:hover { background: var(--secondary); }
+  .auth-btn.logged-in {
+    background: #e7f3e3; border-color: #b7ddb0; color: #2d6a1f;
+  }
+  body.dark .auth-btn.logged-in {
+    background: #1f3a1c; border-color: #2f5a2a; color: #a3e096;
+  }
+  .auth-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 1px solid var(--border-strong);
+  }
+  .sync-status {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--text-muted); padding: 0 6px;
+  }
+  .sync-status .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #999;
+  }
+  .sync-status.online .dot { background: #42b72a; }
+  .sync-status.syncing .dot { background: #f0c419; animation: pulse 1s infinite; }
+  .sync-status.offline .dot { background: #e41e3f; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
 </style>
 </head>
 <body>
@@ -589,6 +345,16 @@
     <button class="icon-btn secondary" onclick="toggleStats()" title="Статистика">📊</button>
     <button class="secondary notes-toggle-desktop" onclick="toggleNotes()" title="Заметки на месяц">📝</button>
     <button class="icon-btn secondary" id="themeToggle" onclick="toggleTheme()" title="Тема">🌙</button>
+
+    <!-- Авторизация -->
+    <button id="authBtn" class="auth-btn" onclick="handleAuth()">
+      <span id="authIcon">🔑</span>
+      <span id="authText">Войти</span>
+    </button>
+    <span id="syncStatus" class="sync-status" style="display:none">
+      <span class="dot"></span>
+      <span id="syncText">—</span>
+    </span>
   </div>
 </div>
 
@@ -612,11 +378,8 @@
 </div>
 
 <button class="fab-notes" onclick="toggleNotes()" title="Заметки на месяц">📝</button>
-
-<!-- Общий оверлей -->
 <div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
 
-<!-- Панель заметок -->
 <div class="side-panel" id="notesPanel">
   <div class="side-panel-header notes-panel-header">
     <h2>📝 Заметки на месяц</h2>
@@ -624,16 +387,12 @@
   </div>
   <div class="side-panel-body">
     <div class="notes-panel-subtitle" id="notesMonthLabel"></div>
-    <textarea
-      id="monthNotesInput"
-      class="notes-month-input"
-      placeholder="Подсказки, идеи, важные напоминания на этот месяц…"
-    ></textarea>
+    <textarea id="monthNotesInput" class="notes-month-input"
+      placeholder="Подсказки, идеи, важные напоминания на этот месяц…"></textarea>
     <div class="notes-hint">Автосохранение • привязано к месяцу</div>
   </div>
 </div>
 
-<!-- Панель статистики -->
 <div class="side-panel" id="statsPanel">
   <div class="side-panel-header">
     <h2>📊 Статистика</h2>
@@ -642,25 +401,18 @@
   <div class="side-panel-body" id="statsBody"></div>
 </div>
 
-<!-- Панель поиска -->
 <div class="side-panel" id="searchPanel">
   <div class="side-panel-header">
     <h2>🔍 Поиск задач</h2>
     <button class="close-btn" onclick="toggleSearch()">×</button>
   </div>
   <div class="side-panel-body">
-    <input
-      type="text"
-      id="searchInput"
-      class="search-input"
-      placeholder="Введите текст для поиска…"
-      oninput="doSearch()"
-    >
+    <input type="text" id="searchInput" class="search-input"
+      placeholder="Введите текст для поиска…" oninput="doSearch()">
     <div class="search-results" id="searchResults"></div>
   </div>
 </div>
 
-<!-- Забытые задачи -->
 <div class="forgotten-overlay" id="forgottenOverlay">
   <div class="forgotten-modal">
     <div class="forgotten-header">
@@ -675,7 +427,41 @@
   </div>
 </div>
 
+<!-- ============ FIREBASE SDK ============ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth, signInWithPopup, GoogleAuthProvider,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getDatabase, ref, set, onValue
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCDAWPfVh-IjEWQNC_ZfmP9fiGRL8RYadQ",
+  authDomain: "diadry.firebaseapp.com",
+  databaseURL: "https://diadry-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "diadry",
+  storageBucket: "diadry.firebasestorage.app",
+  messagingSenderId: "196026548140",
+  appId: "1:196026548140:web:3d62eedee025f744fdc409"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const provider = new GoogleAuthProvider();
+
+// Экспортируем в window, чтобы обычный <script> мог пользоваться
+window.__fb = { auth, db, provider, signInWithPopup, onAuthStateChanged, signOut };
+window.__fbReady = true;
+window.dispatchEvent(new Event("fb-ready"));
+</script>
+
+<!-- ============ ОСНОВНОЙ КОД ============ -->
 <script>
+// ===== Глобальное состояние =====
 const STORAGE_KEY = "diary_data_v4";
 const THEME_KEY = "diary_theme_v4";
 const MONTHS = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
@@ -684,23 +470,26 @@ const MONTHS_GEN = ["января","февраля","марта","апреля",
 const DAYS = ["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
 
 let data = loadData();
-let weekOffset = 0;       // смещение по неделям (для режима недели)
-let monthOffset = 0;      // смещение по месяцам (для режима месяца)
-let viewMode = "week";    // "week" | "month"
-let openPanel = null;     // "notes" | "stats" | "search" | null
+let weekOffset = 0;
+let monthOffset = 0;
+let viewMode = "week";
+let openPanel = null;
 
+// Firebase-состояние
+let fbAuth = null;
+let fbDb = null;
+let fbProvider = null;
+let currentUser = null;
+let cloudRef = null;
+let unsubscribeCloud = null;
+let isSyncingFromCloud = false; // чтобы не зациклить запись
+let pendingCloudSave = null;
+
+// ===== Работа с localStorage =====
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      // пробуем мигрировать со старого ключа v3
-      const oldRaw = localStorage.getItem("diary_data_v3");
-      if (oldRaw) {
-        localStorage.setItem(STORAGE_KEY, oldRaw);
-        return JSON.parse(oldRaw);
-      }
-      return { days: {}, monthNotes: {}, settings: {} };
-    }
+    if (!raw) return { days: {}, monthNotes: {}, settings: {} };
     const parsed = JSON.parse(raw);
     return {
       days: parsed.days || {},
@@ -709,10 +498,134 @@ function loadData() {
     };
   } catch { return { days: {}, monthNotes: {}, settings: {} }; }
 }
-function saveData() {
+function saveDataLocal() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
+function saveData() {
+  saveDataLocal();
+  scheduleCloudSave();
+}
 
+// ===== Firebase: авторизация =====
+function setSyncStatus(status, text) {
+  const el = document.getElementById("syncStatus");
+  const txt = document.getElementById("syncText");
+  if (!el || !txt) return;
+  if (status === "hidden") { el.style.display = "none"; return; }
+  el.style.display = "inline-flex";
+  el.className = "sync-status " + status;
+  txt.textContent = text;
+}
+
+function updateAuthButton() {
+  const btn = document.getElementById("authBtn");
+  const icon = document.getElementById("authIcon");
+  const text = document.getElementById("authText");
+  if (!btn) return;
+  if (currentUser) {
+    const name = (currentUser.displayName || currentUser.email || "User").split(" ")[0];
+    btn.classList.add("logged-in");
+    btn.innerHTML = `
+      <img class="auth-avatar" src="${currentUser.photoURL || ''}" alt="">
+      <span>${escapeHtml(name)}</span>
+    `;
+    btn.title = "Нажми, чтобы выйти";
+  } else {
+    btn.classList.remove("logged-in");
+    btn.innerHTML = `<span>🔑</span><span>Войти</span>`;
+    btn.title = "Войти через Google";
+  }
+}
+
+function handleAuth() {
+  if (!fbAuth) {
+    alert("Firebase ещё не загрузился. Подожди пару секунд и попробуй снова.");
+    return;
+  }
+  if (currentUser) {
+    if (confirm("Выйти из аккаунта? Данные останутся в облаке, но синхронизация остановится.")) {
+      window.__fb.signOut(fbAuth);
+    }
+  } else {
+    window.__fb.signInWithPopup(fbAuth, fbProvider).catch(err => {
+      console.error("Ошибка входа:", err);
+      alert("Не удалось войти: " + err.message);
+    });
+  }
+}
+
+function initFirebase() {
+  fbAuth = window.__fb.auth;
+  fbDb = window.__fb.db;
+  fbProvider = window.__fb.provider;
+
+  window.__fb.onAuthStateChanged(fbAuth, (user) => {
+    currentUser = user;
+    updateAuthButton();
+
+    // Отписываемся от старой ссылки
+    if (unsubscribeCloud) {
+      unsubscribeCloud();
+      unsubscribeCloud = null;
+    }
+
+    if (user) {
+      setSyncStatus("syncing", "Подключение…");
+      cloudRef = ref(fbDb, `users/${user.uid}/diary`);
+
+      unsubscribeCloud = onValue(cloudRef, (snapshot) => {
+        const cloudData = snapshot.val();
+        isSyncingFromCloud = true;
+
+        if (cloudData) {
+          data = {
+            days: cloudData.days || {},
+            monthNotes: cloudData.monthNotes || {},
+            settings: cloudData.settings || {}
+          };
+        } else {
+          // В облаке пусто — заливаем текущее локальное состояние
+          if (Object.keys(data.days).length > 0 || Object.keys(data.monthNotes).length > 0) {
+            set(cloudRef, data);
+          }
+        }
+
+        saveDataLocal();
+        render();
+        maybeShowReminder();
+        setSyncStatus("online", "Синхронизировано");
+        isSyncingFromCloud = false;
+      }, (err) => {
+        console.error("Ошибка чтения:", err);
+        setSyncStatus("offline", "Ошибка синхронизации");
+      });
+    } else {
+      // Вышли — работаем только локально
+      cloudRef = null;
+      setSyncStatus("hidden");
+      data = loadData();
+      render();
+    }
+  });
+}
+
+// Запись в облако с дебаунсом (не спамим Firebase при каждом нажатии клавиши)
+function scheduleCloudSave() {
+  if (!currentUser || !cloudRef || isSyncingFromCloud) return;
+  if (pendingCloudSave) clearTimeout(pendingCloudSave);
+  setSyncStatus("syncing", "Сохранение…");
+  pendingCloudSave = setTimeout(() => {
+    if (!cloudRef) return;
+    set(cloudRef, JSON.parse(JSON.stringify(data)))
+      .then(() => setSyncStatus("online", "Синхронизировано"))
+      .catch(err => {
+        console.error("Ошибка записи:", err);
+        setSyncStatus("offline", "Ошибка сохранения");
+      });
+  }, 400);
+}
+
+// ===== Утилиты =====
 function dateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
@@ -727,8 +640,13 @@ function getMonday(offset) {
   monday.setDate(now.getDate() - day + 1 + offset * 7);
   return monday;
 }
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
 
-// === Данные ===
+// ===== Данные дня =====
 function getDay(key) {
   if (!data.days[key]) data.days[key] = { tasks: [] };
   if (!data.days[key].tasks) data.days[key].tasks = [];
@@ -742,31 +660,26 @@ function addTask(key, text) {
   text = text.trim();
   if (!text) return;
   getDay(key).tasks.push({ text, status: "active" });
-  saveData();
-  render();
+  saveData(); render();
 }
 function setStatus(key, idx, status) {
   const t = getDay(key).tasks[idx];
-  if (t.status === status) t.status = "active";
-  else t.status = status;
-  saveData();
-  render();
-  updateOverdueBadge();
+  t.status = (t.status === status) ? "active" : status;
+  saveData(); render(); updateOverdueBadge();
   if (openPanel === "stats") renderStats();
 }
 function removeTask(key, idx) {
   getDay(key).tasks.splice(idx, 1);
-  saveData();
-  render();
-  updateOverdueBadge();
+  saveData(); render(); updateOverdueBadge();
   if (openPanel === "stats") renderStats();
 }
 
-// === Тема ===
+// ===== Тема =====
 function applyTheme() {
   const theme = localStorage.getItem(THEME_KEY) || "light";
   document.body.classList.toggle("dark", theme === "dark");
-  document.getElementById("themeToggle").textContent = theme === "dark" ? "☀️" : "🌙";
+  const btn = document.getElementById("themeToggle");
+  if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
 }
 function toggleTheme() {
   const cur = localStorage.getItem(THEME_KEY) || "light";
@@ -774,7 +687,7 @@ function toggleTheme() {
   applyTheme();
 }
 
-// === Режим просмотра ===
+// ===== Режим просмотра =====
 function toggleView() {
   viewMode = viewMode === "week" ? "month" : "week";
   document.getElementById("viewWeek").style.display = viewMode === "week" ? "" : "none";
@@ -782,22 +695,19 @@ function toggleView() {
   document.getElementById("viewToggle").textContent = viewMode === "week" ? "📅 Месяц" : "🗓 Неделя";
   render();
 }
-
 function shiftPeriod(delta) {
   if (viewMode === "week") weekOffset += delta;
   else monthOffset += delta;
   render();
   if (openPanel === "notes") syncNotesMonth();
 }
-
 function goToday() {
-  weekOffset = 0;
-  monthOffset = 0;
+  weekOffset = 0; monthOffset = 0;
   render();
   if (openPanel === "notes") syncNotesMonth();
 }
 
-// === Панели ===
+// ===== Панели =====
 function closeAllPanels() {
   ["notesPanel","statsPanel","searchPanel"].forEach(id => {
     document.getElementById(id).classList.remove("open");
@@ -829,7 +739,7 @@ function toggleSearch() {
   setTimeout(() => document.getElementById("searchInput").focus(), 100);
 }
 
-// === Заметки ===
+// ===== Заметки =====
 let currentMonthKey = null;
 function openNotesForMonth(mKey, label) {
   currentMonthKey = mKey;
@@ -849,12 +759,10 @@ function syncNotesMonth() {
   openNotesForMonth(mKey, label);
 }
 
-// === Статистика ===
+// ===== Статистика =====
 function renderStats() {
   const body = document.getElementById("statsBody");
   body.innerHTML = "";
-
-  // Общая статистика
   let total = 0, done = 0, failed = 0, active = 0;
   const byMonth = {};
 
@@ -862,15 +770,13 @@ function renderStats() {
     const mKey = key.slice(0,7);
     if (!byMonth[mKey]) byMonth[mKey] = { done: 0, failed: 0, active: 0, total: 0 };
     for (const t of data.days[key].tasks) {
-      total++;
-      byMonth[mKey].total++;
+      total++; byMonth[mKey].total++;
       if (t.status === "done") { done++; byMonth[mKey].done++; }
       else if (t.status === "failed") { failed++; byMonth[mKey].failed++; }
       else { active++; byMonth[mKey].active++; }
     }
   }
 
-  // Блок общей
   const general = document.createElement("div");
   general.className = "stat-block";
   general.innerHTML = `
@@ -879,8 +785,7 @@ function renderStats() {
     <div class="stat-row"><span class="label">✅ Выполнено</span><span class="value stat-done">${done}</span></div>
     <div class="stat-row"><span class="label">❌ Провалено</span><span class="value stat-failed">${failed}</span></div>
     <div class="stat-row"><span class="label">⬜ Активных</span><span class="value stat-active">${active}</span></div>
-    ${total > 0 ? `
-    <div class="stat-bar">
+    ${total > 0 ? `<div class="stat-bar">
       <div class="stat-bar-done" style="width:${done/total*100}%"></div>
       <div class="stat-bar-failed" style="width:${failed/total*100}%"></div>
       <div class="stat-bar-active" style="width:${active/total*100}%"></div>
@@ -888,7 +793,6 @@ function renderStats() {
   `;
   body.appendChild(general);
 
-  // По месяцам (сортировка от новых к старым)
   const monthKeys = Object.keys(byMonth).sort().reverse();
   if (monthKeys.length > 0) {
     const monthBlock = document.createElement("div");
@@ -896,7 +800,6 @@ function renderStats() {
     const h = document.createElement("h3");
     h.textContent = "По месяцам";
     monthBlock.appendChild(h);
-
     for (const mKey of monthKeys) {
       const [y, m] = mKey.split("-");
       const stats = byMonth[mKey];
@@ -904,10 +807,7 @@ function renderStats() {
       div.className = "stat-month";
       div.innerHTML = `
         <div class="stat-month-title">${MONTHS[+m-1]} ${y}</div>
-        <div class="stat-row">
-          <span class="label">Всего</span>
-          <span>${stats.total}</span>
-        </div>
+        <div class="stat-row"><span class="label">Всего</span><span>${stats.total}</span></div>
         <div class="stat-row">
           <span class="label"><span class="stat-done">✅</span> / <span class="stat-failed">❌</span> / ⬜</span>
           <span>
@@ -916,8 +816,7 @@ function renderStats() {
             ${stats.active}
           </span>
         </div>
-        ${stats.total > 0 ? `
-        <div class="stat-bar">
+        ${stats.total > 0 ? `<div class="stat-bar">
           <div class="stat-bar-done" style="width:${stats.done/stats.total*100}%"></div>
           <div class="stat-bar-failed" style="width:${stats.failed/stats.total*100}%"></div>
           <div class="stat-bar-active" style="width:${stats.active/stats.total*100}%"></div>
@@ -929,17 +828,15 @@ function renderStats() {
   }
 }
 
-// === Поиск ===
+// ===== Поиск =====
 function doSearch() {
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
   const results = document.getElementById("searchResults");
   results.innerHTML = "";
-
   if (!q) {
     results.innerHTML = '<div class="search-empty">Начните вводить текст…</div>';
     return;
   }
-
   const found = [];
   for (const key in data.days) {
     data.days[key].tasks.forEach((t, idx) => {
@@ -949,28 +846,22 @@ function doSearch() {
     });
   }
   found.sort((a,b) => b.dateKey.localeCompare(a.dateKey));
-
   if (found.length === 0) {
     results.innerHTML = '<div class="search-empty">Ничего не найдено 🕵️</div>';
     return;
   }
-
   found.forEach(item => {
     const [y,m,d] = item.dateKey.split("-");
     const dateStr = `${+d} ${MONTHS_GEN[+m-1]} ${y}`;
     const statusText = item.status === "done" ? "выполнено"
-                     : item.status === "failed" ? "провалено"
-                     : "активно";
+                     : item.status === "failed" ? "провалено" : "активно";
     const el = document.createElement("div");
     el.className = "search-result";
-
-    // подсветка
     const lower = item.text.toLowerCase();
     const start = lower.indexOf(q);
     const before = item.text.slice(0, start);
     const match = item.text.slice(start, start + q.length);
     const after = item.text.slice(start + q.length);
-
     el.innerHTML = `
       <div class="search-result-head">
         <span class="search-result-date">${dateStr}</span>
@@ -978,25 +869,12 @@ function doSearch() {
       </div>
       <div class="search-result-text">${escapeHtml(before)}<mark>${escapeHtml(match)}</mark>${escapeHtml(after)}</div>
     `;
-
-    // клик — перейти к этой дате
-    el.onclick = () => {
-      jumpToDate(item.dateKey);
-      closeAllPanels();
-    };
+    el.onclick = () => { jumpToDate(item.dateKey); closeAllPanels(); };
     results.appendChild(el);
   });
 }
-
-function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-
 function jumpToDate(dateKey) {
   const d = new Date(dateKey + "T00:00:00");
-  // вычисляем offset недели
   const now = new Date();
   now.setHours(0,0,0,0);
   const nowMonday = getMonday(0);
@@ -1005,15 +883,12 @@ function jumpToDate(dateKey) {
   targetMonday.setDate(d.getDate() - targetDay + 1);
   const diffDays = Math.round((targetMonday - nowMonday) / (24*3600*1000));
   weekOffset = Math.round(diffDays / 7);
-
-  // offset месяца
   monthOffset = (d.getFullYear() - now.getFullYear()) * 12 + (d.getMonth() - now.getMonth());
-
   render();
   if (openPanel === "notes") syncNotesMonth();
 }
 
-// === Просроченные ===
+// ===== Просроченные =====
 function getForgottenTasks() {
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -1023,15 +898,12 @@ function getForgottenTasks() {
     if (key >= todayKey) continue;
     const tasks = data.days[key].tasks || [];
     tasks.forEach((t, idx) => {
-      if (t.status === "active") {
-        result.push({ dateKey: key, idx, text: t.text });
-      }
+      if (t.status === "active") result.push({ dateKey: key, idx, text: t.text });
     });
   }
   result.sort((a,b) => a.dateKey.localeCompare(b.dateKey));
   return result;
 }
-
 function updateOverdueBadge() {
   const list = getForgottenTasks();
   const badge = document.getElementById("overdueBadge");
@@ -1043,7 +915,6 @@ function updateOverdueBadge() {
     badge.classList.add("hidden");
   }
 }
-
 function showForgotten() {
   const list = getForgottenTasks();
   const body = document.getElementById("forgottenBody");
@@ -1062,26 +933,19 @@ function showForgotten() {
       `;
       const actions = document.createElement("div");
       actions.className = "forgotten-item-actions";
-
       const doneBtn = document.createElement("button");
       doneBtn.className = "btn-done";
       doneBtn.textContent = "✅";
       doneBtn.onclick = () => {
         data.days[item.dateKey].tasks[item.idx].status = "done";
-        saveData();
-        showForgotten();
-        render();
-        updateOverdueBadge();
+        saveData(); showForgotten(); render(); updateOverdueBadge();
       };
       const failBtn = document.createElement("button");
       failBtn.className = "btn-fail";
       failBtn.textContent = "❌";
       failBtn.onclick = () => {
         data.days[item.dateKey].tasks[item.idx].status = "failed";
-        saveData();
-        showForgotten();
-        render();
-        updateOverdueBadge();
+        saveData(); showForgotten(); render(); updateOverdueBadge();
       };
       actions.append(doneBtn, failBtn);
       el.appendChild(actions);
@@ -1100,10 +964,7 @@ function markAllForgottenDone() {
   list.forEach(item => {
     data.days[item.dateKey].tasks[item.idx].status = "done";
   });
-  saveData();
-  closeForgotten();
-  render();
-  updateOverdueBadge();
+  saveData(); closeForgotten(); render(); updateOverdueBadge();
 }
 function maybeShowReminder() {
   const todayKey = dateKey(new Date());
@@ -1116,13 +977,12 @@ function maybeShowReminder() {
   }
 }
 
-// === Рендер ===
+// ===== Рендер =====
 function render() {
   if (viewMode === "week") renderWeek();
   else renderMonth();
   updateOverdueBadge();
 }
-
 function renderWeek() {
   const monday = getMonday(weekOffset);
   const today = new Date();
@@ -1130,23 +990,19 @@ function renderWeek() {
   const todayKey = dateKey(today);
   const weekEl = document.getElementById("week");
   weekEl.innerHTML = "";
-
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    weekEl.appendChild(buildDayCell(d, todayKey, true));
+    weekEl.appendChild(buildDayCell(d, todayKey));
   }
 }
-
-function buildDayCell(d, todayKey, full) {
+function buildDayCell(d, todayKey) {
   const key = dateKey(d);
   const day = getDay(key);
   const isToday = key === todayKey;
   const isPast = key < todayKey;
-
   const dayEl = document.createElement("div");
   dayEl.className = "day" + (isToday ? " today" : "") + (isPast ? " past" : "");
-
   const header = document.createElement("div");
   header.className = "day-header";
   header.innerHTML = `
@@ -1154,88 +1010,65 @@ function buildDayCell(d, todayKey, full) {
     <span class="day-date">${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}</span>
   `;
   dayEl.appendChild(header);
-
   const tasksEl = document.createElement("div");
   tasksEl.className = "tasks";
-  day.tasks.forEach((task, idx) => {
-    tasksEl.appendChild(buildTaskEl(task, key, idx));
-  });
+  day.tasks.forEach((task, idx) => tasksEl.appendChild(buildTaskEl(task, key, idx)));
   dayEl.appendChild(tasksEl);
-
   const addEl = document.createElement("div");
   addEl.className = "add-task";
   const inp = document.createElement("input");
   inp.type = "text";
   inp.placeholder = "Новая задача…";
-  inp.onkeydown = (e) => {
-    if (e.key === "Enter") { addTask(key, inp.value); inp.value = ""; }
-  };
+  inp.onkeydown = (e) => { if (e.key === "Enter") { addTask(key, inp.value); inp.value = ""; } };
   const btn = document.createElement("button");
   btn.textContent = "+";
   btn.onclick = () => { addTask(key, inp.value); inp.value = ""; };
   addEl.append(inp, btn);
   dayEl.appendChild(addEl);
-
   return dayEl;
 }
-
 function buildTaskEl(task, key, idx) {
   const status = task.status || "active";
   const taskEl = document.createElement("div");
-  taskEl.className = "task" +
-    (status === "done" ? " done" : "") +
-    (status === "failed" ? " failed" : "");
-
+  taskEl.className = "task" + (status === "done" ? " done" : "") + (status === "failed" ? " failed" : "");
   const statusBtns = document.createElement("div");
   statusBtns.className = "status-btns";
-
   const doneBtn = document.createElement("button");
   doneBtn.className = "status-btn" + (status === "done" ? " on done-on" : "");
   doneBtn.textContent = "✅";
   doneBtn.title = "Выполнено";
   doneBtn.onclick = () => setStatus(key, idx, "done");
-
   const failBtn = document.createElement("button");
   failBtn.className = "status-btn" + (status === "failed" ? " on fail-on" : "");
   failBtn.textContent = "❌";
   failBtn.title = "Провалено";
   failBtn.onclick = () => setStatus(key, idx, "failed");
-
   statusBtns.append(doneBtn, failBtn);
-
   const span = document.createElement("span");
   span.className = "task-text";
   span.textContent = task.text;
-
   const del = document.createElement("button");
   del.className = "task-remove";
   del.textContent = "×";
   del.title = "Удалить";
   del.onclick = () => removeTask(key, idx);
-
   taskEl.append(statusBtns, span, del);
   return taskEl;
 }
-
-// === Режим месяца ===
 function renderMonth() {
   const now = new Date();
   const targetMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
   const year = targetMonth.getFullYear();
   const month = targetMonth.getMonth();
-
   const first = new Date(year, month, 1);
-  const firstDayIdx = (first.getDay() + 6) % 7; // Пн=0 .. Вс=6
+  const firstDayIdx = (first.getDay() + 6) % 7;
   const start = new Date(first);
   start.setDate(first.getDate() - firstDayIdx);
-
   const today = new Date();
   today.setHours(0,0,0,0);
   const todayKey = dateKey(today);
-
   const monthEl = document.getElementById("monthView");
   monthEl.innerHTML = "";
-
   for (let i = 0; i < 42; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
@@ -1243,35 +1076,25 @@ function renderMonth() {
     const day = getDay(key);
     const isToday = key === todayKey;
     const isOtherMonth = d.getMonth() !== month;
-
     const cell = document.createElement("div");
-    cell.className = "month-cell" +
-      (isToday ? " today" : "") +
-      (isOtherMonth ? " other-month" : "");
-
-    const total = day.tasks.length;
+    cell.className = "month-cell" + (isToday ? " today" : "") + (isOtherMonth ? " other-month" : "");
     const doneC = day.tasks.filter(t => t.status === "done").length;
     const failC = day.tasks.filter(t => t.status === "failed").length;
-
     const head = document.createElement("div");
     head.className = "month-cell-header";
     head.innerHTML = `
       <span class="month-cell-date">${d.getDate()}</span>
-      ${total > 0 ? `<span class="month-cell-counts">
+      ${day.tasks.length > 0 ? `<span class="month-cell-counts">
         ${doneC ? `<span class="c-done">${doneC}✓</span>` : ""}
         ${failC ? `<span class="c-failed">${failC}✗</span>` : ""}
       </span>` : ""}
     `;
     cell.appendChild(head);
-
     const tasksWrap = document.createElement("div");
     tasksWrap.className = "month-cell-tasks";
-    const show = day.tasks.slice(0, 3);
-    show.forEach(t => {
+    day.tasks.slice(0, 3).forEach(t => {
       const line = document.createElement("div");
-      line.className = "month-cell-task" +
-        (t.status === "done" ? " done" : "") +
-        (t.status === "failed" ? " failed" : "");
+      line.className = "month-cell-task" + (t.status === "done" ? " done" : "") + (t.status === "failed" ? " failed" : "");
       line.textContent = t.text;
       line.title = t.text;
       tasksWrap.appendChild(line);
@@ -1283,18 +1106,15 @@ function renderMonth() {
       tasksWrap.appendChild(more);
     }
     cell.appendChild(tasksWrap);
-
-    // клик — открыть эту дату в режиме недели
     cell.onclick = () => {
       jumpToDate(key);
       if (viewMode === "month") toggleView();
     };
-
     monthEl.appendChild(cell);
   }
 }
 
-// === Экспорт / Импорт ===
+// ===== Экспорт / Импорт =====
 function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1346,10 +1166,17 @@ function importData(event) {
 document.getElementById("monthNotesInput").addEventListener("input", saveMonthNotes);
 window.addEventListener("beforeunload", saveMonthNotes);
 
-// Старт
+// ===== Старт =====
 applyTheme();
 render();
-maybeShowReminder();
+
+// Ждём Firebase
+window.addEventListener("fb-ready", initFirebase);
+// Если уже загрузился
+if (window.__fbReady) initFirebase();
+
+// Напоминание о забытых — только после того, как данные загрузятся
+setTimeout(maybeShowReminder, 1500);
 </script>
 </body>
 </html>
