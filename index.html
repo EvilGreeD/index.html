@@ -5,16 +5,63 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📔 Ежедневник</title>
 <style>
+  :root {
+    --bg: #f0f2f5;
+    --panel-bg: #ffffff;
+    --panel-bg-alt: #fafafa;
+    --text: #1c1e21;
+    --text-muted: #65676b;
+    --border: #eee;
+    --border-strong: #ddd;
+    --task-bg: #f7f8fa;
+    --task-failed-bg: #fdecee;
+    --task-failed-text: #c0392b;
+    --accent: #1877f2;
+    --accent-hover: #166fe5;
+    --secondary: #e4e6eb;
+    --secondary-hover: #d8dadf;
+    --secondary-text: #1c1e21;
+    --notes-bg: #fffbe6;
+    --notes-text: #8a6d00;
+    --warn-bg: #fff3cd;
+    --warn-text: #856404;
+    --shadow: rgba(0,0,0,0.08);
+    --shadow-modal: rgba(0,0,0,0.3);
+  }
+  body.dark {
+    --bg: #18191a;
+    --panel-bg: #242526;
+    --panel-bg-alt: #1e1f20;
+    --text: #e4e6eb;
+    --text-muted: #b0b3b8;
+    --border: #3a3b3c;
+    --border-strong: #4a4b4c;
+    --task-bg: #3a3b3c;
+    --task-failed-bg: #4a1f24;
+    --task-failed-text: #ff8b9a;
+    --accent: #2d88ff;
+    --accent-hover: #1a7aff;
+    --secondary: #3a3b3c;
+    --secondary-hover: #4a4b4c;
+    --secondary-text: #e4e6eb;
+    --notes-bg: #3a3520;
+    --notes-text: #ffd84d;
+    --warn-bg: #4a3a1a;
+    --warn-text: #ffd84d;
+    --shadow: rgba(0,0,0,0.4);
+    --shadow-modal: rgba(0,0,0,0.6);
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #f0f2f5;
-    color: #1c1e21;
+    background: var(--bg);
+    color: var(--text);
     padding: 10px;
     min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
   }
 
-  /* === Шапка === */
   .header {
     display: flex;
     justify-content: space-between;
@@ -27,7 +74,7 @@
   .nav-buttons { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
   button {
-    background: #1877f2;
+    background: var(--accent);
     color: white;
     border: none;
     border-radius: 8px;
@@ -36,47 +83,119 @@
     cursor: pointer;
     transition: 0.2s;
   }
-  button:hover { background: #166fe5; }
-  button.secondary { background: #e4e6eb; color: #1c1e21; }
-  button.secondary:hover { background: #d8dadf; }
+  button:hover { background: var(--accent-hover); }
+  button.secondary { background: var(--secondary); color: var(--secondary-text); }
+  button.secondary:hover { background: var(--secondary-hover); }
   button.active { background: #42b72a; }
   button.active:hover { background: #36a420; }
+  button.icon-btn { padding: 8px 10px; font-size: 16px; }
 
-  /* === Неделя === */
+  /* Вид недели / месяца */
+  .view-container { transition: 0.2s; }
   .week {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 10px;
-    transition: margin-right 0.3s;
+  }
+  .month-view {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
   }
   @media (max-width: 900px) {
     .week { grid-template-columns: repeat(2, 1fr); }
+    .month-view { grid-template-columns: repeat(7, 1fr); gap: 4px; }
   }
   @media (max-width: 500px) {
     .week { grid-template-columns: 1fr; }
+    .month-view { grid-template-columns: repeat(7, 1fr); gap: 3px; }
   }
 
   .day {
-    background: white;
+    background: var(--panel-bg);
     border-radius: 12px;
     padding: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px var(--shadow);
     display: flex;
     flex-direction: column;
     min-height: 220px;
   }
-  .day.today { border: 2px solid #1877f2; }
+  .day.today { border: 2px solid var(--accent); }
+  .day.past { background: var(--panel-bg-alt); }
   .day-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 8px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border);
     padding-bottom: 6px;
   }
   .day-name { font-weight: 600; font-size: 14px; text-transform: capitalize; }
-  .day-date { font-size: 12px; color: #65676b; }
-  .day.today .day-name { color: #1877f2; }
+  .day-date { font-size: 12px; color: var(--text-muted); }
+  .day.today .day-name { color: var(--accent); }
+
+  /* Ячейка месяца */
+  .month-cell {
+    background: var(--panel-bg);
+    border-radius: 8px;
+    padding: 6px;
+    min-height: 90px;
+    box-shadow: 0 1px 2px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: 0.15s;
+    overflow: hidden;
+    font-size: 11px;
+  }
+  .month-cell:hover { background: var(--panel-bg-alt); }
+  .month-cell.today { border: 2px solid var(--accent); }
+  .month-cell.other-month { opacity: 0.4; }
+  .month-cell-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .month-cell-date { font-weight: 700; font-size: 13px; }
+  .month-cell.today .month-cell-date { color: var(--accent); }
+  .month-cell-counts { font-size: 10px; color: var(--text-muted); }
+  .month-cell-counts .c-done { color: #42b72a; }
+  .month-cell-counts .c-failed { color: #e41e3f; }
+  .month-cell-tasks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+  }
+  .month-cell-task {
+    font-size: 10px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-muted);
+  }
+  .month-cell-task.done { text-decoration: line-through; color: #42b72a; opacity: 0.7; }
+  .month-cell-task.failed { text-decoration: line-through; color: #e41e3f; opacity: 0.7; }
+  .month-cell-more { font-size: 9px; color: var(--text-muted); text-align: center; }
+
+  .month-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 6px;
+    padding: 0 6px;
+  }
+  @media (max-width: 500px) { .month-header { gap: 3px; padding: 0 2px; } }
+  .month-header div {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
 
   .tasks { flex: 1; display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
 
@@ -85,28 +204,49 @@
     align-items: flex-start;
     gap: 6px;
     padding: 6px 8px;
-    background: #f7f8fa;
+    background: var(--task-bg);
     border-radius: 6px;
     font-size: 13px;
     word-break: break-word;
+    transition: 0.15s;
   }
   .task.done { opacity: 0.55; }
-  .task.done .task-text { text-decoration: line-through; }
-  .task input[type="checkbox"] {
-    margin-top: 2px;
-    cursor: pointer;
-    width: 16px; height: 16px;
-    flex-shrink: 0;
+  .task.done .task-text { text-decoration: line-through; color: var(--text-muted); }
+  .task.failed { background: var(--task-failed-bg); }
+  .task.failed .task-text {
+    text-decoration: line-through;
+    color: var(--task-failed-text);
   }
   .task-text { flex: 1; }
+
+  .status-btns { display: flex; gap: 2px; flex-shrink: 0; margin-top: 1px; }
+  .status-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.35;
+    transition: 0.15s;
+    border-radius: 4px;
+  }
+  .status-btn:hover { opacity: 1; transform: scale(1.15); background: none; }
+  .status-btn.on { opacity: 1; }
+  .status-btn.done-on { color: #42b72a; }
+  .status-btn.fail-on { color: #e41e3f; }
+
   .task-remove {
     background: none;
     border: none;
-    color: #999;
+    color: var(--text-muted);
     padding: 0 4px;
     font-size: 16px;
     cursor: pointer;
     line-height: 1;
+    flex-shrink: 0;
   }
   .task-remove:hover { color: #e41e3f; background: none; }
 
@@ -114,19 +254,22 @@
   .add-task input {
     flex: 1;
     padding: 6px 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-strong);
     border-radius: 6px;
     font-size: 13px;
     min-width: 0;
+    background: var(--panel-bg);
+    color: var(--text);
   }
+  .add-task input:focus { outline: none; border-color: var(--accent); }
   .add-task button { padding: 6px 10px; font-size: 13px; }
 
-  /* === Кнопки файлов === */
   .file-actions {
     display: flex;
     gap: 8px;
     margin-bottom: 12px;
     flex-wrap: wrap;
+    align-items: center;
   }
   .file-actions label {
     display: inline-block;
@@ -140,80 +283,169 @@
   .file-actions label:hover { background: #36a420; }
   .file-actions input[type="file"] { display: none; }
 
-  /* === Панель заметок === */
-  .notes-panel {
+  /* Панели (заметки, статистика, поиск) — общий стиль */
+  .side-panel {
     position: fixed;
     top: 0;
-    right: -420px;
-    width: 400px;
-    max-width: 90vw;
+    right: -440px;
+    width: 420px;
+    max-width: 92vw;
     height: 100vh;
-    background: white;
-    box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+    background: var(--panel-bg);
+    color: var(--text);
+    box-shadow: -4px 0 20px var(--shadow-modal);
     transition: right 0.3s ease;
     display: flex;
     flex-direction: column;
     z-index: 100;
   }
-  .notes-panel.open { right: 0; }
+  .side-panel.open { right: 0; }
 
-  .notes-panel-header {
+  .side-panel-header {
     padding: 16px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #fffbe6;
   }
-  .notes-panel-header h2 { font-size: 17px; color: #8a6d00; }
-  .notes-panel-header .close-btn {
+  .side-panel-header h2 { font-size: 17px; }
+  .side-panel-header .close-btn {
     background: none;
     border: none;
     font-size: 22px;
-    color: #666;
+    color: var(--text-muted);
     padding: 4px 8px;
     cursor: pointer;
     line-height: 1;
   }
-  .notes-panel-header .close-btn:hover { color: #e41e3f; background: none; }
+  .side-panel-header .close-btn:hover { color: #e41e3f; background: none; }
 
-  .notes-panel-body {
+  .side-panel-body {
     flex: 1;
     display: flex;
     flex-direction: column;
     padding: 16px;
     gap: 10px;
-    overflow: hidden;
+    overflow-y: auto;
   }
-  .notes-panel-subtitle {
-    font-size: 13px;
-    color: #666;
-  }
+
+  /* Заметки */
+  .notes-panel-header { background: var(--notes-bg); }
+  .notes-panel-header h2 { color: var(--notes-text); }
+  .notes-panel-subtitle { font-size: 13px; color: var(--text-muted); }
   .notes-month-input {
     width: 100%;
     flex: 1;
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-strong);
     border-radius: 8px;
     font-family: inherit;
     font-size: 14px;
     line-height: 1.5;
     resize: none;
-    background: #fffbe6;
+    background: var(--notes-bg);
+    color: var(--text);
     min-height: 200px;
   }
   .notes-month-input:focus {
     outline: none;
     border-color: #f0c419;
-    box-shadow: 0 0 0 3px rgba(240,196,25,0.2);
   }
-  .notes-hint {
-    font-size: 12px;
-    color: #999;
-    text-align: center;
+  .notes-hint { font-size: 12px; color: var(--text-muted); text-align: center; }
+
+  /* Статистика */
+  .stat-block {
+    background: var(--task-bg);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .stat-block h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .label { color: var(--text-muted); }
+  .stat-row .value { font-weight: 600; }
+  .stat-done { color: #42b72a; }
+  .stat-failed { color: #e41e3f; }
+  .stat-active { color: var(--text); }
+  .stat-bar {
+    height: 8px;
+    background: var(--secondary);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    margin-top: 8px;
+  }
+  .stat-bar-done { background: #42b72a; }
+  .stat-bar-failed { background: #e41e3f; }
+  .stat-bar-active { background: #f0c419; }
+  .stat-month { margin-bottom: 14px; }
+  .stat-month-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
   }
 
-  /* Затемнение фона */
+  /* Поиск */
+  .search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--panel-bg);
+    color: var(--text);
+  }
+  .search-input:focus { outline: none; border-color: var(--accent); }
+  .search-results { flex: 1; overflow-y: auto; margin-top: 6px; }
+  .search-result {
+    padding: 10px;
+    background: var(--task-bg);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+    border-left: 3px solid var(--accent);
+  }
+  .search-result:hover { background: var(--secondary); }
+  .search-result-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .search-result-date { color: var(--text-muted); }
+  .search-result-status {
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+  .search-result-status.done { background: rgba(66,183,42,0.2); color: #42b72a; }
+  .search-result-status.failed { background: rgba(228,30,63,0.2); color: #e41e3f; }
+  .search-result-status.active { background: var(--secondary); color: var(--text-muted); }
+  .search-result-text { font-size: 13px; word-break: break-word; }
+  .search-result-text mark {
+    background: #ffe69b;
+    color: #333;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+  body.dark .search-result-text mark { background: #b08800; color: #fff; }
+  .search-empty { text-align: center; color: var(--text-muted); padding: 30px 10px; }
+
   .overlay {
     position: fixed;
     inset: 0;
@@ -224,8 +456,87 @@
     z-index: 99;
   }
   .overlay.open { opacity: 1; pointer-events: auto; }
+  body.dark .overlay { background: rgba(0,0,0,0.6); }
 
-  /* Плавающая кнопка заметок на мобильных */
+  /* Забытые задачи */
+  .forgotten-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 15px;
+  }
+  .forgotten-overlay.open { display: flex; }
+
+  .forgotten-modal {
+    background: var(--panel-bg);
+    color: var(--text);
+    border-radius: 14px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px var(--shadow-modal);
+  }
+  .forgotten-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--warn-bg);
+    border-radius: 14px 14px 0 0;
+  }
+  .forgotten-header h2 {
+    font-size: 18px;
+    color: var(--warn-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .forgotten-header p {
+    font-size: 13px;
+    color: var(--warn-text);
+    margin-top: 4px;
+  }
+  .forgotten-body { flex: 1; overflow-y: auto; padding: 12px 20px; }
+  .forgotten-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--task-bg);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 3px solid #f0c419;
+    font-size: 14px;
+  }
+  .forgotten-item-date {
+    font-size: 11px;
+    color: var(--warn-text);
+    background: var(--warn-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .forgotten-item-text { flex: 1; word-break: break-word; }
+  .forgotten-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .forgotten-item-actions button { padding: 4px 8px; font-size: 12px; border-radius: 6px; }
+  .btn-done { background: #42b72a; }
+  .btn-done:hover { background: #36a420; }
+  .btn-fail { background: #e41e3f; }
+  .btn-fail:hover { background: #c81a35; }
+  .forgotten-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
   .fab-notes {
     position: fixed;
     bottom: 20px;
@@ -236,7 +547,7 @@
     font-size: 24px;
     background: #f0c419;
     color: #333;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px var(--shadow-modal);
     display: none;
     z-index: 50;
   }
@@ -245,6 +556,23 @@
     .fab-notes { display: block; }
     .notes-toggle-desktop { display: none; }
   }
+
+  .overdue-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #ffe69b;
+    transition: 0.2s;
+  }
+  .overdue-badge:hover { filter: brightness(0.95); }
+  .overdue-badge.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -252,75 +580,139 @@
 <div class="header">
   <h1>📔 Ежедневник</h1>
   <div class="nav-buttons">
-    <button class="secondary" onclick="shiftWeek(-1)">← Пред. неделя</button>
+    <button class="secondary" id="btnPrev" onclick="shiftPeriod(-1)">←</button>
     <button class="secondary" onclick="goToday()">Сегодня</button>
-    <button class="secondary" onclick="shiftWeek(1)">След. неделя →</button>
-    <button id="notesToggle" class="notes-toggle-desktop" onclick="toggleNotes()">📝 Заметки на месяц</button>
+    <button class="secondary" id="btnNext" onclick="shiftPeriod(1)">→</button>
+    <button class="secondary" id="viewToggle" onclick="toggleView()">📅 Месяц</button>
+    <span id="overdueBadge" class="overdue-badge hidden" onclick="showForgotten()">⚠️ <span id="overdueCount">0</span></span>
+    <button class="icon-btn secondary" onclick="toggleSearch()" title="Поиск">🔍</button>
+    <button class="icon-btn secondary" onclick="toggleStats()" title="Статистика">📊</button>
+    <button class="secondary notes-toggle-desktop" onclick="toggleNotes()" title="Заметки на месяц">📝</button>
+    <button class="icon-btn secondary" id="themeToggle" onclick="toggleTheme()" title="Тема">🌙</button>
   </div>
 </div>
 
 <div class="file-actions">
-  <button onclick="exportData()">💾 Экспорт в файл</button>
+  <button onclick="exportData()">💾 Экспорт</button>
   <label>
-    📂 Импорт из файла
+    📂 Импорт
     <input type="file" accept=".json" onchange="importData(event)">
   </label>
 </div>
 
-<div class="week" id="week"></div>
+<div id="viewWeek" class="view-container">
+  <div class="week" id="week"></div>
+</div>
 
-<!-- Плавающая кнопка для мобильных -->
+<div id="viewMonth" class="view-container" style="display:none">
+  <div class="month-header">
+    <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+  </div>
+  <div class="month-view" id="monthView"></div>
+</div>
+
 <button class="fab-notes" onclick="toggleNotes()" title="Заметки на месяц">📝</button>
 
+<!-- Общий оверлей -->
+<div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
+
 <!-- Панель заметок -->
-<div class="overlay" id="overlay" onclick="toggleNotes()"></div>
-<div class="notes-panel" id="notesPanel">
-  <div class="notes-panel-header">
+<div class="side-panel" id="notesPanel">
+  <div class="side-panel-header notes-panel-header">
     <h2>📝 Заметки на месяц</h2>
     <button class="close-btn" onclick="toggleNotes()">×</button>
   </div>
-  <div class="notes-panel-body">
+  <div class="side-panel-body">
     <div class="notes-panel-subtitle" id="notesMonthLabel"></div>
     <textarea
       id="monthNotesInput"
       class="notes-month-input"
-      placeholder="Подсказки, идеи, важные напоминания на этот месяц…&#10;&#10;Например:&#10;• Поздравить маму 15-го&#10;• Записаться к врачу&#10;• Купить подарок другу"
+      placeholder="Подсказки, идеи, важные напоминания на этот месяц…"
     ></textarea>
-    <div class="notes-hint">Автосохранение • заметки привязаны к месяцу</div>
+    <div class="notes-hint">Автосохранение • привязано к месяцу</div>
+  </div>
+</div>
+
+<!-- Панель статистики -->
+<div class="side-panel" id="statsPanel">
+  <div class="side-panel-header">
+    <h2>📊 Статистика</h2>
+    <button class="close-btn" onclick="toggleStats()">×</button>
+  </div>
+  <div class="side-panel-body" id="statsBody"></div>
+</div>
+
+<!-- Панель поиска -->
+<div class="side-panel" id="searchPanel">
+  <div class="side-panel-header">
+    <h2>🔍 Поиск задач</h2>
+    <button class="close-btn" onclick="toggleSearch()">×</button>
+  </div>
+  <div class="side-panel-body">
+    <input
+      type="text"
+      id="searchInput"
+      class="search-input"
+      placeholder="Введите текст для поиска…"
+      oninput="doSearch()"
+    >
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- Забытые задачи -->
+<div class="forgotten-overlay" id="forgottenOverlay">
+  <div class="forgotten-modal">
+    <div class="forgotten-header">
+      <h2>⚠️ Забытые задачи</h2>
+      <p>Активные задачи из прошлых дней. Отметь их: выполнены или провалены.</p>
+    </div>
+    <div class="forgotten-body" id="forgottenBody"></div>
+    <div class="forgotten-footer">
+      <button class="secondary" onclick="closeForgotten()">Отложить</button>
+      <button onclick="markAllForgottenDone()">✅ Все выполнены</button>
+    </div>
   </div>
 </div>
 
 <script>
-const STORAGE_KEY = "diary_data_v2";
+const STORAGE_KEY = "diary_data_v4";
+const THEME_KEY = "diary_theme_v4";
 const MONTHS = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
 const MONTHS_SHORT = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+const MONTHS_GEN = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
 const DAYS = ["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
 
-// Структура данных:
-// {
-//   days: { "2026-10-16": { tasks: [...] }, ... },
-//   monthNotes: { "2026-10": "текст заметок", ... }
-// }
 let data = loadData();
-let weekOffset = 0;
+let weekOffset = 0;       // смещение по неделям (для режима недели)
+let monthOffset = 0;      // смещение по месяцам (для режима месяца)
+let viewMode = "week";    // "week" | "month"
+let openPanel = null;     // "notes" | "stats" | "search" | null
 
-// === Хранилище ===
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { days: {}, monthNotes: {} };
+    if (!raw) {
+      // пробуем мигрировать со старого ключа v3
+      const oldRaw = localStorage.getItem("diary_data_v3");
+      if (oldRaw) {
+        localStorage.setItem(STORAGE_KEY, oldRaw);
+        return JSON.parse(oldRaw);
+      }
+      return { days: {}, monthNotes: {}, settings: {} };
+    }
     const parsed = JSON.parse(raw);
     return {
       days: parsed.days || {},
-      monthNotes: parsed.monthNotes || {}
+      monthNotes: parsed.monthNotes || {},
+      settings: parsed.settings || {}
     };
-  } catch { return { days: {}, monthNotes: {} }; }
+  } catch { return { days: {}, monthNotes: {}, settings: {} }; }
 }
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// === Утилиты ===
 function dateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
@@ -336,37 +728,112 @@ function getMonday(offset) {
   return monday;
 }
 
-// === Работа с задачами ===
+// === Данные ===
 function getDay(key) {
   if (!data.days[key]) data.days[key] = { tasks: [] };
   if (!data.days[key].tasks) data.days[key].tasks = [];
+  data.days[key].tasks.forEach(t => {
+    if (!t.status) t.status = t.done ? "done" : "active";
+    delete t.done;
+  });
   return data.days[key];
 }
 function addTask(key, text) {
   text = text.trim();
   if (!text) return;
-  getDay(key).tasks.push({ text, done: false });
+  getDay(key).tasks.push({ text, status: "active" });
   saveData();
   render();
 }
-function toggleTask(key, idx) {
-  const day = getDay(key);
-  day.tasks[idx].done = !day.tasks[idx].done;
+function setStatus(key, idx, status) {
+  const t = getDay(key).tasks[idx];
+  if (t.status === status) t.status = "active";
+  else t.status = status;
   saveData();
   render();
+  updateOverdueBadge();
+  if (openPanel === "stats") renderStats();
 }
 function removeTask(key, idx) {
   getDay(key).tasks.splice(idx, 1);
   saveData();
   render();
+  updateOverdueBadge();
+  if (openPanel === "stats") renderStats();
 }
 
-// === Работа с заметками месяца ===
+// === Тема ===
+function applyTheme() {
+  const theme = localStorage.getItem(THEME_KEY) || "light";
+  document.body.classList.toggle("dark", theme === "dark");
+  document.getElementById("themeToggle").textContent = theme === "dark" ? "☀️" : "🌙";
+}
+function toggleTheme() {
+  const cur = localStorage.getItem(THEME_KEY) || "light";
+  localStorage.setItem(THEME_KEY, cur === "dark" ? "light" : "dark");
+  applyTheme();
+}
+
+// === Режим просмотра ===
+function toggleView() {
+  viewMode = viewMode === "week" ? "month" : "week";
+  document.getElementById("viewWeek").style.display = viewMode === "week" ? "" : "none";
+  document.getElementById("viewMonth").style.display = viewMode === "month" ? "" : "none";
+  document.getElementById("viewToggle").textContent = viewMode === "week" ? "📅 Месяц" : "🗓 Неделя";
+  render();
+}
+
+function shiftPeriod(delta) {
+  if (viewMode === "week") weekOffset += delta;
+  else monthOffset += delta;
+  render();
+  if (openPanel === "notes") syncNotesMonth();
+}
+
+function goToday() {
+  weekOffset = 0;
+  monthOffset = 0;
+  render();
+  if (openPanel === "notes") syncNotesMonth();
+}
+
+// === Панели ===
+function closeAllPanels() {
+  ["notesPanel","statsPanel","searchPanel"].forEach(id => {
+    document.getElementById(id).classList.remove("open");
+  });
+  document.getElementById("overlay").classList.remove("open");
+  openPanel = null;
+}
+function openPanelById(id, kind) {
+  if (openPanel === kind) { closeAllPanels(); return; }
+  closeAllPanels();
+  document.getElementById(id).classList.add("open");
+  document.getElementById("overlay").classList.add("open");
+  openPanel = kind;
+}
+function toggleNotes() {
+  if (openPanel === "notes") { saveMonthNotes(); closeAllPanels(); return; }
+  syncNotesMonth();
+  openPanelById("notesPanel", "notes");
+  setTimeout(() => document.getElementById("monthNotesInput").focus(), 100);
+}
+function toggleStats() {
+  if (openPanel === "stats") { closeAllPanels(); return; }
+  renderStats();
+  openPanelById("statsPanel", "stats");
+}
+function toggleSearch() {
+  if (openPanel === "search") { closeAllPanels(); return; }
+  openPanelById("searchPanel", "search");
+  setTimeout(() => document.getElementById("searchInput").focus(), 100);
+}
+
+// === Заметки ===
 let currentMonthKey = null;
 function openNotesForMonth(mKey, label) {
   currentMonthKey = mKey;
-  document.getElementById("notesMonthLabel").textContent =
-    "Месяц: " + label;
+  document.getElementById("notesMonthLabel").textContent = "Месяц: " + label;
   document.getElementById("monthNotesInput").value = data.monthNotes[mKey] || "";
 }
 function saveMonthNotes() {
@@ -374,180 +841,18 @@ function saveMonthNotes() {
   data.monthNotes[currentMonthKey] = document.getElementById("monthNotesInput").value;
   saveData();
 }
-
-// === Навигация ===
-function shiftWeek(delta) {
-  weekOffset += delta;
-  render();
-  if (document.getElementById("notesPanel").classList.contains("open")) {
-    syncNotesMonth();
-  }
-}
-function goToday() {
-  weekOffset = 0;
-  render();
-  if (document.getElementById("notesPanel").classList.contains("open")) {
-    syncNotesMonth();
-  }
-}
-
-// === Панель заметок ===
-function toggleNotes() {
-  const panel = document.getElementById("notesPanel");
-  const overlay = document.getElementById("overlay");
-  const btn = document.getElementById("notesToggle");
-  const isOpen = panel.classList.contains("open");
-  if (isOpen) {
-    saveMonthNotes();
-    panel.classList.remove("open");
-    overlay.classList.remove("open");
-    btn.classList.remove("active");
-  } else {
-    syncNotesMonth();
-    panel.classList.add("open");
-    overlay.classList.add("open");
-    btn.classList.add("active");
-    document.getElementById("monthNotesInput").focus();
-  }
-}
-
-// Синхронизирует месяц в панели заметок с текущим отображаемым месяцем
 function syncNotesMonth() {
-  saveMonthNotes(); // сохраняем предыдущий
+  saveMonthNotes();
   const monday = getMonday(weekOffset);
   const mKey = monthKey(monday);
   const label = `${MONTHS[monday.getMonth()]} ${monday.getFullYear()}`;
   openNotesForMonth(mKey, label);
 }
 
-// === Рендер ===
-function render() {
-  const monday = getMonday(weekOffset);
-  const todayKey = dateKey(new Date());
-  const weekEl = document.getElementById("week");
-  weekEl.innerHTML = "";
+// === Статистика ===
+function renderStats() {
+  const body = document.getElementById("statsBody");
+  body.innerHTML = "";
 
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    const key = dateKey(d);
-    const day = getDay(key);
-    const isToday = key === todayKey;
-
-    const dayEl = document.createElement("div");
-    dayEl.className = "day" + (isToday ? " today" : "");
-
-    const header = document.createElement("div");
-    header.className = "day-header";
-    header.innerHTML = `
-      <span class="day-name">${DAYS[d.getDay()]}</span>
-      <span class="day-date">${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}</span>
-    `;
-    dayEl.appendChild(header);
-
-    const tasksEl = document.createElement("div");
-    tasksEl.className = "tasks";
-    day.tasks.forEach((task, idx) => {
-      const taskEl = document.createElement("div");
-      taskEl.className = "task" + (task.done ? " done" : "");
-
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = task.done;
-      cb.onchange = () => toggleTask(key, idx);
-
-      const span = document.createElement("span");
-      span.className = "task-text";
-      span.textContent = task.text;
-
-      const del = document.createElement("button");
-      del.className = "task-remove";
-      del.textContent = "×";
-      del.title = "Удалить";
-      del.onclick = () => removeTask(key, idx);
-
-      taskEl.append(cb, span, del);
-      tasksEl.appendChild(taskEl);
-    });
-    dayEl.appendChild(tasksEl);
-
-    const addEl = document.createElement("div");
-    addEl.className = "add-task";
-    const inp = document.createElement("input");
-    inp.type = "text";
-    inp.placeholder = "Новая задача…";
-    inp.onkeydown = (e) => {
-      if (e.key === "Enter") { addTask(key, inp.value); inp.value = ""; }
-    };
-    const btn = document.createElement("button");
-    btn.textContent = "+";
-    btn.onclick = () => { addTask(key, inp.value); inp.value = ""; };
-    addEl.append(inp, btn);
-    dayEl.appendChild(addEl);
-
-    weekEl.appendChild(dayEl);
-  }
-}
-
-// === Экспорт / Импорт ===
-function exportData() {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  const today = new Date().toISOString().slice(0,10);
-  a.download = `diary-${today}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if (confirm("Заменить текущие данные импортированными? (Отмена — объединить)")) {
-        data = {
-          days: imported.days || {},
-          monthNotes: imported.monthNotes || {}
-        };
-      } else {
-        // Объединение
-        const impDays = imported.days || {};
-        for (const key in impDays) {
-          if (!data.days[key]) data.days[key] = { tasks: [] };
-          data.days[key].tasks = data.days[key].tasks.concat(impDays[key].tasks || []);
-        }
-        const impNotes = imported.monthNotes || {};
-        for (const key in impNotes) {
-          if (!data.monthNotes[key]) data.monthNotes[key] = impNotes[key];
-          else if (impNotes[key]) data.monthNotes[key] += "\n" + impNotes[key];
-        }
-      }
-      saveData();
-      render();
-      if (document.getElementById("notesPanel").classList.contains("open")) {
-        syncNotesMonth();
-      }
-      alert("✅ Импорт завершён!");
-    } catch {
-      alert("❌ Ошибка: файл повреждён или не является JSON.");
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = "";
-}
-
-// Автосохранение заметок при вводе
-document.getElementById("monthNotesInput").addEventListener("input", saveMonthNotes);
-
-// Сохранить заметки при закрытии страницы
-window.addEventListener("beforeunload", saveMonthNotes);
-
-// Старт
-render();
-</script>
-</body>
-</html>
+  // Общая статистика
+  let total
