@@ -855,4 +855,501 @@ function renderStats() {
   body.innerHTML = "";
 
   // Общая статистика
-  let total
+  let total = 0, done = 0, failed = 0, active = 0;
+  const byMonth = {};
+
+  for (const key in data.days) {
+    const mKey = key.slice(0,7);
+    if (!byMonth[mKey]) byMonth[mKey] = { done: 0, failed: 0, active: 0, total: 0 };
+    for (const t of data.days[key].tasks) {
+      total++;
+      byMonth[mKey].total++;
+      if (t.status === "done") { done++; byMonth[mKey].done++; }
+      else if (t.status === "failed") { failed++; byMonth[mKey].failed++; }
+      else { active++; byMonth[mKey].active++; }
+    }
+  }
+
+  // Блок общей
+  const general = document.createElement("div");
+  general.className = "stat-block";
+  general.innerHTML = `
+    <h3>Всего</h3>
+    <div class="stat-row"><span class="label">Задач создано</span><span class="value">${total}</span></div>
+    <div class="stat-row"><span class="label">✅ Выполнено</span><span class="value stat-done">${done}</span></div>
+    <div class="stat-row"><span class="label">❌ Провалено</span><span class="value stat-failed">${failed}</span></div>
+    <div class="stat-row"><span class="label">⬜ Активных</span><span class="value stat-active">${active}</span></div>
+    ${total > 0 ? `
+    <div class="stat-bar">
+      <div class="stat-bar-done" style="width:${done/total*100}%"></div>
+      <div class="stat-bar-failed" style="width:${failed/total*100}%"></div>
+      <div class="stat-bar-active" style="width:${active/total*100}%"></div>
+    </div>` : ""}
+  `;
+  body.appendChild(general);
+
+  // По месяцам (сортировка от новых к старым)
+  const monthKeys = Object.keys(byMonth).sort().reverse();
+  if (monthKeys.length > 0) {
+    const monthBlock = document.createElement("div");
+    monthBlock.className = "stat-block";
+    const h = document.createElement("h3");
+    h.textContent = "По месяцам";
+    monthBlock.appendChild(h);
+
+    for (const mKey of monthKeys) {
+      const [y, m] = mKey.split("-");
+      const stats = byMonth[mKey];
+      const div = document.createElement("div");
+      div.className = "stat-month";
+      div.innerHTML = `
+        <div class="stat-month-title">${MONTHS[+m-1]} ${y}</div>
+        <div class="stat-row">
+          <span class="label">Всего</span>
+          <span>${stats.total}</span>
+        </div>
+        <div class="stat-row">
+          <span class="label"><span class="stat-done">✅</span> / <span class="stat-failed">❌</span> / ⬜</span>
+          <span>
+            <span class="stat-done">${stats.done}</span> /
+            <span class="stat-failed">${stats.failed}</span> /
+            ${stats.active}
+          </span>
+        </div>
+        ${stats.total > 0 ? `
+        <div class="stat-bar">
+          <div class="stat-bar-done" style="width:${stats.done/stats.total*100}%"></div>
+          <div class="stat-bar-failed" style="width:${stats.failed/stats.total*100}%"></div>
+          <div class="stat-bar-active" style="width:${stats.active/stats.total*100}%"></div>
+        </div>` : ""}
+      `;
+      monthBlock.appendChild(div);
+    }
+    body.appendChild(monthBlock);
+  }
+}
+
+// === Поиск ===
+function doSearch() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const results = document.getElementById("searchResults");
+  results.innerHTML = "";
+
+  if (!q) {
+    results.innerHTML = '<div class="search-empty">Начните вводить текст…</div>';
+    return;
+  }
+
+  const found = [];
+  for (const key in data.days) {
+    data.days[key].tasks.forEach((t, idx) => {
+      if (t.text.toLowerCase().includes(q)) {
+        found.push({ dateKey: key, idx, text: t.text, status: t.status });
+      }
+    });
+  }
+  found.sort((a,b) => b.dateKey.localeCompare(a.dateKey));
+
+  if (found.length === 0) {
+    results.innerHTML = '<div class="search-empty">Ничего не найдено 🕵️</div>';
+    return;
+  }
+
+  found.forEach(item => {
+    const [y,m,d] = item.dateKey.split("-");
+    const dateStr = `${+d} ${MONTHS_GEN[+m-1]} ${y}`;
+    const statusText = item.status === "done" ? "выполнено"
+                     : item.status === "failed" ? "провалено"
+                     : "активно";
+    const el = document.createElement("div");
+    el.className = "search-result";
+
+    // подсветка
+    const lower = item.text.toLowerCase();
+    const start = lower.indexOf(q);
+    const before = item.text.slice(0, start);
+    const match = item.text.slice(start, start + q.length);
+    const after = item.text.slice(start + q.length);
+
+    el.innerHTML = `
+      <div class="search-result-head">
+        <span class="search-result-date">${dateStr}</span>
+        <span class="search-result-status ${item.status}">${statusText}</span>
+      </div>
+      <div class="search-result-text">${escapeHtml(before)}<mark>${escapeHtml(match)}</mark>${escapeHtml(after)}</div>
+    `;
+
+    // клик — перейти к этой дате
+    el.onclick = () => {
+      jumpToDate(item.dateKey);
+      closeAllPanels();
+    };
+    results.appendChild(el);
+  });
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function jumpToDate(dateKey) {
+  const d = new Date(dateKey + "T00:00:00");
+  // вычисляем offset недели
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  const nowMonday = getMonday(0);
+  const targetDay = d.getDay() || 7;
+  const targetMonday = new Date(d);
+  targetMonday.setDate(d.getDate() - targetDay + 1);
+  const diffDays = Math.round((targetMonday - nowMonday) / (24*3600*1000));
+  weekOffset = Math.round(diffDays / 7);
+
+  // offset месяца
+  monthOffset = (d.getFullYear() - now.getFullYear()) * 12 + (d.getMonth() - now.getMonth());
+
+  render();
+  if (openPanel === "notes") syncNotesMonth();
+}
+
+// === Просроченные ===
+function getForgottenTasks() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayKey = dateKey(today);
+  const result = [];
+  for (const key in data.days) {
+    if (key >= todayKey) continue;
+    const tasks = data.days[key].tasks || [];
+    tasks.forEach((t, idx) => {
+      if (t.status === "active") {
+        result.push({ dateKey: key, idx, text: t.text });
+      }
+    });
+  }
+  result.sort((a,b) => a.dateKey.localeCompare(b.dateKey));
+  return result;
+}
+
+function updateOverdueBadge() {
+  const list = getForgottenTasks();
+  const badge = document.getElementById("overdueBadge");
+  const count = document.getElementById("overdueCount");
+  if (list.length > 0) {
+    count.textContent = list.length;
+    badge.classList.remove("hidden");
+  } else {
+    badge.classList.add("hidden");
+  }
+}
+
+function showForgotten() {
+  const list = getForgottenTasks();
+  const body = document.getElementById("forgottenBody");
+  body.innerHTML = "";
+  if (list.length === 0) {
+    body.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px">🎉 Просроченных задач нет!</p>';
+  } else {
+    list.forEach(item => {
+      const [y, m, d] = item.dateKey.split("-");
+      const dateStr = `${+d} ${MONTHS_SHORT[+m-1]}`;
+      const el = document.createElement("div");
+      el.className = "forgotten-item";
+      el.innerHTML = `
+        <span class="forgotten-item-date">${dateStr}</span>
+        <span class="forgotten-item-text">${escapeHtml(item.text)}</span>
+      `;
+      const actions = document.createElement("div");
+      actions.className = "forgotten-item-actions";
+
+      const doneBtn = document.createElement("button");
+      doneBtn.className = "btn-done";
+      doneBtn.textContent = "✅";
+      doneBtn.onclick = () => {
+        data.days[item.dateKey].tasks[item.idx].status = "done";
+        saveData();
+        showForgotten();
+        render();
+        updateOverdueBadge();
+      };
+      const failBtn = document.createElement("button");
+      failBtn.className = "btn-fail";
+      failBtn.textContent = "❌";
+      failBtn.onclick = () => {
+        data.days[item.dateKey].tasks[item.idx].status = "failed";
+        saveData();
+        showForgotten();
+        render();
+        updateOverdueBadge();
+      };
+      actions.append(doneBtn, failBtn);
+      el.appendChild(actions);
+      body.appendChild(el);
+    });
+  }
+  document.getElementById("forgottenOverlay").classList.add("open");
+}
+function closeForgotten() {
+  document.getElementById("forgottenOverlay").classList.remove("open");
+}
+function markAllForgottenDone() {
+  const list = getForgottenTasks();
+  if (list.length === 0) { closeForgotten(); return; }
+  if (!confirm(`Отметить все ${list.length} задач выполненными?`)) return;
+  list.forEach(item => {
+    data.days[item.dateKey].tasks[item.idx].status = "done";
+  });
+  saveData();
+  closeForgotten();
+  render();
+  updateOverdueBadge();
+}
+function maybeShowReminder() {
+  const todayKey = dateKey(new Date());
+  const last = data.settings.lastReminderDate;
+  const forgotten = getForgottenTasks();
+  if (forgotten.length > 0 && last !== todayKey) {
+    data.settings.lastReminderDate = todayKey;
+    saveData();
+    setTimeout(showForgotten, 400);
+  }
+}
+
+// === Рендер ===
+function render() {
+  if (viewMode === "week") renderWeek();
+  else renderMonth();
+  updateOverdueBadge();
+}
+
+function renderWeek() {
+  const monday = getMonday(weekOffset);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayKey = dateKey(today);
+  const weekEl = document.getElementById("week");
+  weekEl.innerHTML = "";
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    weekEl.appendChild(buildDayCell(d, todayKey, true));
+  }
+}
+
+function buildDayCell(d, todayKey, full) {
+  const key = dateKey(d);
+  const day = getDay(key);
+  const isToday = key === todayKey;
+  const isPast = key < todayKey;
+
+  const dayEl = document.createElement("div");
+  dayEl.className = "day" + (isToday ? " today" : "") + (isPast ? " past" : "");
+
+  const header = document.createElement("div");
+  header.className = "day-header";
+  header.innerHTML = `
+    <span class="day-name">${DAYS[d.getDay()]}</span>
+    <span class="day-date">${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}</span>
+  `;
+  dayEl.appendChild(header);
+
+  const tasksEl = document.createElement("div");
+  tasksEl.className = "tasks";
+  day.tasks.forEach((task, idx) => {
+    tasksEl.appendChild(buildTaskEl(task, key, idx));
+  });
+  dayEl.appendChild(tasksEl);
+
+  const addEl = document.createElement("div");
+  addEl.className = "add-task";
+  const inp = document.createElement("input");
+  inp.type = "text";
+  inp.placeholder = "Новая задача…";
+  inp.onkeydown = (e) => {
+    if (e.key === "Enter") { addTask(key, inp.value); inp.value = ""; }
+  };
+  const btn = document.createElement("button");
+  btn.textContent = "+";
+  btn.onclick = () => { addTask(key, inp.value); inp.value = ""; };
+  addEl.append(inp, btn);
+  dayEl.appendChild(addEl);
+
+  return dayEl;
+}
+
+function buildTaskEl(task, key, idx) {
+  const status = task.status || "active";
+  const taskEl = document.createElement("div");
+  taskEl.className = "task" +
+    (status === "done" ? " done" : "") +
+    (status === "failed" ? " failed" : "");
+
+  const statusBtns = document.createElement("div");
+  statusBtns.className = "status-btns";
+
+  const doneBtn = document.createElement("button");
+  doneBtn.className = "status-btn" + (status === "done" ? " on done-on" : "");
+  doneBtn.textContent = "✅";
+  doneBtn.title = "Выполнено";
+  doneBtn.onclick = () => setStatus(key, idx, "done");
+
+  const failBtn = document.createElement("button");
+  failBtn.className = "status-btn" + (status === "failed" ? " on fail-on" : "");
+  failBtn.textContent = "❌";
+  failBtn.title = "Провалено";
+  failBtn.onclick = () => setStatus(key, idx, "failed");
+
+  statusBtns.append(doneBtn, failBtn);
+
+  const span = document.createElement("span");
+  span.className = "task-text";
+  span.textContent = task.text;
+
+  const del = document.createElement("button");
+  del.className = "task-remove";
+  del.textContent = "×";
+  del.title = "Удалить";
+  del.onclick = () => removeTask(key, idx);
+
+  taskEl.append(statusBtns, span, del);
+  return taskEl;
+}
+
+// === Режим месяца ===
+function renderMonth() {
+  const now = new Date();
+  const targetMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  const year = targetMonth.getFullYear();
+  const month = targetMonth.getMonth();
+
+  const first = new Date(year, month, 1);
+  const firstDayIdx = (first.getDay() + 6) % 7; // Пн=0 .. Вс=6
+  const start = new Date(first);
+  start.setDate(first.getDate() - firstDayIdx);
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayKey = dateKey(today);
+
+  const monthEl = document.getElementById("monthView");
+  monthEl.innerHTML = "";
+
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const key = dateKey(d);
+    const day = getDay(key);
+    const isToday = key === todayKey;
+    const isOtherMonth = d.getMonth() !== month;
+
+    const cell = document.createElement("div");
+    cell.className = "month-cell" +
+      (isToday ? " today" : "") +
+      (isOtherMonth ? " other-month" : "");
+
+    const total = day.tasks.length;
+    const doneC = day.tasks.filter(t => t.status === "done").length;
+    const failC = day.tasks.filter(t => t.status === "failed").length;
+
+    const head = document.createElement("div");
+    head.className = "month-cell-header";
+    head.innerHTML = `
+      <span class="month-cell-date">${d.getDate()}</span>
+      ${total > 0 ? `<span class="month-cell-counts">
+        ${doneC ? `<span class="c-done">${doneC}✓</span>` : ""}
+        ${failC ? `<span class="c-failed">${failC}✗</span>` : ""}
+      </span>` : ""}
+    `;
+    cell.appendChild(head);
+
+    const tasksWrap = document.createElement("div");
+    tasksWrap.className = "month-cell-tasks";
+    const show = day.tasks.slice(0, 3);
+    show.forEach(t => {
+      const line = document.createElement("div");
+      line.className = "month-cell-task" +
+        (t.status === "done" ? " done" : "") +
+        (t.status === "failed" ? " failed" : "");
+      line.textContent = t.text;
+      line.title = t.text;
+      tasksWrap.appendChild(line);
+    });
+    if (day.tasks.length > 3) {
+      const more = document.createElement("div");
+      more.className = "month-cell-more";
+      more.textContent = `+${day.tasks.length - 3} ещё`;
+      tasksWrap.appendChild(more);
+    }
+    cell.appendChild(tasksWrap);
+
+    // клик — открыть эту дату в режиме недели
+    cell.onclick = () => {
+      jumpToDate(key);
+      if (viewMode === "month") toggleView();
+    };
+
+    monthEl.appendChild(cell);
+  }
+}
+
+// === Экспорт / Импорт ===
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const today = new Date().toISOString().slice(0,10);
+  a.download = `diary-${today}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (confirm("Заменить текущие данные импортированными? (Отмена — объединить)")) {
+        data = {
+          days: imported.days || {},
+          monthNotes: imported.monthNotes || {},
+          settings: imported.settings || {}
+        };
+      } else {
+        const impDays = imported.days || {};
+        for (const key in impDays) {
+          if (!data.days[key]) data.days[key] = { tasks: [] };
+          data.days[key].tasks = data.days[key].tasks.concat(impDays[key].tasks || []);
+        }
+        const impNotes = imported.monthNotes || {};
+        for (const key in impNotes) {
+          if (!data.monthNotes[key]) data.monthNotes[key] = impNotes[key];
+          else if (impNotes[key]) data.monthNotes[key] += "\n" + impNotes[key];
+        }
+      }
+      saveData();
+      render();
+      if (openPanel === "notes") syncNotesMonth();
+      if (openPanel === "stats") renderStats();
+      alert("✅ Импорт завершён!");
+    } catch {
+      alert("❌ Ошибка: файл повреждён или не является JSON.");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
+document.getElementById("monthNotesInput").addEventListener("input", saveMonthNotes);
+window.addEventListener("beforeunload", saveMonthNotes);
+
+// Старт
+applyTheme();
+render();
+maybeShowReminder();
+</script>
+</body>
+</html>
